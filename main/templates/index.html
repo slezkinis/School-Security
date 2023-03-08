@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Список вошедших{% endblock %}
+
+{% block content %}
+  <center>
+    <h2>Список вошедших</h2>
+  </center>
+
+  <hr/>
+  <br/>
+  <br/>
+  <div class="container">
+   <table class="table table-responsive">
+    <tr>
+      <th>Фото человека</th>
+      <th>Имя</th>
+      <th>Время входа</th>
+    </tr>
+
+    {% for person in people %}
+      <tr>
+        <td>
+          <img src="{{person.photo}}" class="card-img" alt="Фото книги" height="100px">
+        </td>
+        <td>{{person.name}}</td>
+        <td>{{person.date}}</td>
+      </tr>
+    {% endfor %}
+   </table>
+  </div>
+{% endblock %}
