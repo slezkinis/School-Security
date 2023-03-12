@@ -6,10 +6,11 @@
   <center>
     <h2>Список вошедших</h2>
   </center>
-
+  <meta http-equiv="refresh" content="10">
   <hr/>
-  <br/>
-  <br/>
+  <center>
+    <h3>Неизвестные</h3>
+  </center>
   <div class="container">
    <table class="table table-responsive">
     <tr>
@@ -18,7 +19,28 @@
       <th>Время входа</th>
     </tr>
 
-    {% for person in people %}
+    {% for person in unknown_people %}
+      <tr>
+        <td>
+          <img src="{{person.photo}}" class="card-img" alt="Фото книги" height="100px">
+        </td>
+        <td>{{person.name}}</td>
+        <td>{{person.date}}</td>
+      </tr>
+    {% endfor %}
+   </table>
+    <hr/>
+    <center>
+      <h3>Известные</h3>
+    </center>
+   <table class="table table-responsive">
+    <tr>
+      <th>Фото человека</th>
+      <th>Имя</th>
+      <th>Время входа</th>
+    </tr>
+
+    {% for person in known_people %}
       <tr>
         <td>
           <img src="{{person.photo}}" class="card-img" alt="Фото книги" height="100px">

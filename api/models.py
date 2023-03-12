@@ -6,8 +6,14 @@ class Person(models.Model):
     name = models.CharField('Имя человека', max_length=100)
     picture = models.ImageField('Фото человека')
     is_enter = models.BooleanField('Внутри ли человек')
-    last_enter = models.TimeField(
+    last_enter = models.DateTimeField(
         'Последний вход человека',
+        default=timezone.now,
+        db_index=True
+    )
+
+    last_exit = models.DateTimeField(
+        'Последний выход человека',
         default=timezone.now,
         db_index=True
     )
@@ -22,8 +28,14 @@ class Person(models.Model):
 
 class UnknownEnterPerson(models.Model):
     picture = models.ImageField('Фото человека')
-    last_enter = models.TimeField(
+    last_enter = models.DateTimeField(
         'Последний вход человека',
+        default=timezone.now,
+        db_index=True
+    )
+
+    last_exit = models.DateTimeField(
+        'Последний выход человека',
         default=timezone.now,
         db_index=True
     )
@@ -33,4 +45,4 @@ class UnknownEnterPerson(models.Model):
         verbose_name_plural = 'неизвестные люди'
 
     def __str__(self) -> str:
-        return f'Unknown {self.id}'
+        return f'Unknown {self.last_enter}'

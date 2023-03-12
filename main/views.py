@@ -7,7 +7,7 @@ from django.core.files.storage import default_storage
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-from api.models import Person
+from api.models import Person, UnknownEnterPerson
 import datetime
 
 
@@ -65,9 +65,24 @@ def is_manager(user):
 
 @user_passes_test(is_manager, login_url='main:login')
 def index(request):
-    people = []
-    for person in Person.objects.filter(is_enter=True):
-        people.append(
-            {'name': person.name, 'date': '14:35', 'photo': request.build_absolute_uri(person.picture.url)}
+    unknown_people = []
+    known_people = []
+    for person in UnknownEnterPerson.objects.all():
+        unknown_people.append(
+            {'name': 'Неизвестный', 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
         )
-    return render(request, 'index.html', {'people': people})
+    for person in Person.objects.filter(is_enter=True).order_by('-last_enter'):
+        known_people.append(
+            {'name': person.name, 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
+        )
+    return render(request, 'index.html', {'unknown_people': unknown_people, 'known_people': known_people})
+
+
+@user_passes_test(is_manager, login_url='main:login')
+def show_known_person(request, person_id):
+    return redirect("main:index") 
+
+
+@user_passes_test(is_manager, login_url='main:login')
+def show_unknown_person(request, person_id):
+    return redirect("main:index")

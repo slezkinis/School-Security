@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, redirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,26 +10,42 @@ import os
 from rest_framework.serializers import ValidationError
 import datetime
 from django.core.files.base import ContentFile
+from django.utils import timezone
+import warnings
+
+
+warnings.simplefilter("ignore")
 
 
 @api_view(['POST'])
 def api_enter(request):
+    if request.method == 'GET':
+        return redirect('/')
     if 'Authorization' in request.headers:
         if request.headers['Authorization'] == '1234':
-            path = f'media/test/{request.data["filename"]}'
-            with default_storage.open(f'test/{request.data["filename"]}', 'wb+') as destination:
+            path = f'media/test/enter/{request.data["filename"]}'
+            with default_storage.open(f'test/enter/{request.data["filename"]}', 'wb+') as destination:
                 for chunk in request.data['file'].chunks():
                     destination.write(chunk)
             unknown_image = face_recognition.load_image_file(path)
-            unknown_encoding = face_recognition.face_encodings(unknown_image)[0]
+            try:
+                unknown_encoding = face_recognition.face_encodings(unknown_image)[0]
+            except IndexError:
+                raise ValidationError('Error!')
+                return
             for i in Person.objects.all():
                 known_image = face_recognition.load_image_file(i.picture.path)
                 known_encoding = face_recognition.face_encodings(known_image)[0]
                 if face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
-                    i.is_enter = True
-                    i.last_enter = datetime.datetime.now()
-                    i.save()
-                    return Response({'name': i.name, 'add': False}, status=status.HTTP_200_OK)
+                    if (timezone.now().day - i.last_exit.day) > 0 or (timezone.now().hour - i.last_exit.hour) > 0 or ((timezone.now().minute - i.last_exit.minute) >= 1):
+                        i.is_enter = True
+                        i.last_enter = datetime.datetime.now()
+                        i.save()
+                        os.remove(path) 
+                        return Response({'name': i.name, 'add': False}, status=status.HTTP_200_OK)
+                    os.remove(path) 
+                    return Response({'name': i.name, 'add': True}, status=status.HTTP_200_OK)
+
             else:
                 for i in UnknownEnterPerson.objects.all():
                     known_image = face_recognition.load_image_file(i.picture.path)
@@ -37,6 +53,7 @@ def api_enter(request):
                     if face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
                         i.last_enter = datetime.datetime.now()
                         i.save()
+                        os.remove(path)     
                         return Response({'name': 'Unknown', 'add': False}, status=status.HTTP_200_OK)
                 else:
                     unknown = UnknownEnterPerson.objects.create(
@@ -45,7 +62,7 @@ def api_enter(request):
                     unknown.save()
                     content = ContentFile(open(path, 'rb').read())
                     unknown.picture.save(f'unknown/Unknown {unknown.id}.jpg', content=content, save=True)
-                    unknown.picture.file
+                    os.remove(path)
                     return Response({'name': 'Unknown', 'add': True}, status=status.HTTP_200_OK)
         else:
             raise ValidationError('Authorization error!')
@@ -54,8 +71,51 @@ def api_enter(request):
 
 
 
+@api_view(['POST'])
 def api_exit(request):
-    if request.method == 'POST':
-        data = json.loads(request.body.decode())
+    if request.method == 'GET':
+        return redirect('/')
+    if 'Authorization' in request.headers:
+        if request.headers['Authorization'] == '1234':
+            path = f'media/test/exit/{request.data["filename"]}'
+            with default_storage.open(f'test/exit/{request.data["filename"]}', 'wb+') as destination:
+                for chunk in request.data['file'].chunks():
+                    destination.write(chunk)
+            unknown_image = face_recognition.load_image_file(path)
+            try:
+                unknown_encoding = face_recognition.face_encodings(unknown_image)[0]
+            except IndexError:
+                raise ValidationError('Error!')
+                return
+            for i in Person.objects.all():
+                known_image = face_recognition.load_image_file(i.picture.path)
+                known_encoding = face_recognition.face_encodings(known_image)[0]
+                if face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
+                    if (timezone.now().day - i.last_enter.day) > 0 or (timezone.now().hour - i.last_enter.hour) > 0 or ((timezone.now().minute - i.last_enter.minute) >= 1):
+                        i.is_enter = False
+                        i.last_exit = datetime.datetime.now()
+                        i.save()
+                        os.remove(path) 
+                        return Response({'name': i.name, 'delete': False}, status=status.HTTP_200_OK)
+                    os.remove(path) 
+                    return Response({'name': i.name, 'delete': False}, status=status.HTTP_200_OK)
+            else:
+                for i in UnknownEnterPerson.objects.all():
+                    known_image = face_recognition.load_image_file(i.picture.path)
+                    known_encoding = face_recognition.face_encodings(known_image)[0]
+                    if face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
+                        if (timezone.now().hour - i.last_enter.hour) > 1 or ((timezone.now().minute - i.last_enter.minute) >= 1):
+                            os.remove(i.picture.path)
+                            b = i.id
+                            UnknownEnterPerson.objects.filter(id=i.id).delete()
+                            os.remove(path) 
+                            return Response({'name': 'Unknown', 'delete': True}, status=status.HTTP_200_OK)
+                    os.remove(path) 
+                    return Response({'name': 'Unknown', 'delete': False}, status=status.HTTP_200_OK)
+                else:
+                    os.remove(path)
+                    return Response({'name': 'Unknown', 'delete': False}, status=status.HTTP_200_OK)
+        else:
+            raise ValidationError('Authorization error!')
     else:
-        return HttpResponse('<h1>API</h1>')
+        raise ValidationError('Authorization error!')
