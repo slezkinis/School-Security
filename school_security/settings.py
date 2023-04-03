@@ -28,6 +28,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+TOKEN = '5223025765:AAENLkIY_0pgBZsv5dad8XCr4dba81OZr_4'
+TELEGRAM_KEY = '1234'
+USE_TZ = True
+INTERNAL_IPS = []
 
 # Application definition
 
@@ -40,10 +44,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main',
     'rest_framework',
-    'api'
+    'api',
+    'debug_toolbar'
 ]
 
+
+CSRF_TRUSTED_ORIGINS = ['https://*.eu.ngrok.io']
+
+
+
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}История входов/выходов{% endblock %}
+
+{% block content %}
+  <center>
+    <h2>История входов/выходов</h2>
+  </center>
+  <hr/>
+  <div class="container">
+   <table class="table table-responsive">
+    <tr>
+      <th>Фото человека</th>
+      <th>Событие</th>
+      <th>Время</th>
+    </tr>
+    {% for person in people %}
+      <tr>
+        <td>
+          <img src="{{person.photo}}" class="card-img" alt="Фото" height="100px">
+        </td>
+        <td>{{person.title}}</td>
+        <td>{{person.date}}</td>
+      </tr>
+    {% endfor %}
+   </table>
+  </div>
+{% endblock %}

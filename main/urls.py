@@ -8,8 +8,7 @@ app_name = "main"
 
 urlpatterns = [
     path('', index, name='index'),
-    path('person/known_person/<person_id>/', show_known_person, name='known_person'),
-    path('person/unknown_person/<person_id>/', show_unknown_person, name='unknown_person'),
+    path('history', history, name='history'),
     path('login/', LoginView.as_view(), name="login"),
     path('logout/', LogoutView.as_view(), name="logout")
 ]

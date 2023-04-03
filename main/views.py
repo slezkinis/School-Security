@@ -7,7 +7,7 @@ from django.core.files.storage import default_storage
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-from api.models import Person, UnknownEnterPerson
+from api.models import Person, UnknownEnterPerson, History
 import datetime
 
 
@@ -79,10 +79,16 @@ def index(request):
 
 
 @user_passes_test(is_manager, login_url='main:login')
-def show_known_person(request, person_id):
-    return redirect("main:index") 
-
-
-@user_passes_test(is_manager, login_url='main:login')
-def show_unknown_person(request, person_id):
-    return redirect("main:index")
+def history(request):
+    people_history = []
+    for person in History.objects.all().order_by('-data_time'):
+        need = {
+            'title': person.title,
+            'date': person.data_time,
+        }
+        if person.image:
+            need['photo'] = request.build_absolute_uri(person.image.url)
+        people_history.append(
+            need
+        )
+    return render(request, 'history.html', {'people': people_history})
