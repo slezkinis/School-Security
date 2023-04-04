@@ -12,15 +12,17 @@ from api.models import *
 import datetime
 
 
+bot = telebot.TeleBot(TOKEN)
+
 class Command(BaseCommand):
     help = 'Telegram bot'
 
 
     def handle(self, *args, **options):
         print('Start')
-        bot()
+        bot1()
 
-def bot():
+def bot1():
     TEAM_USER_LOGGING = 0
     TEAM_USER_ACCEPTED = 1
 
@@ -99,45 +101,50 @@ def bot():
     #         if message.caption == None:
     #             bot.reply_to(message, 'Вы не написали, как назвать человека в базе данных! Напишите это в сообщении к фото!')
     #         else:
-    #             data = files.read_db()
-    #             first = len(data)
-    #             data[message.caption] = {
-    #                 'name': message.caption,
-    #                 'photo': f'media/{message.caption}.jpg'
-    #             }
-    #             if first == len(data):
+    #             if len(Person.objects.filter(name=message.caption)) == 1:
     #                 bot.reply_to(message, 'Пользователь с таким именем уже существует! Напишите другое')
     #                 return
-    #             file_info = bot.get_file(message.photo[1].file_id)
-    #             downloaded_file = bot.download_file(file_info.file_path)
-    #             with open(f'media/{message.caption}.jpg', 'wb') as new_file:
-    #                 new_file.write(downloaded_file)
-    #             with open('db.json', 'w') as file:
-    #                 json.dump(data, file)
-    #             image = face_recognition.load_image_file(f"media/{message.caption}.jpg")
+                
 
-    #             face_encoding = face_recognition.face_encodings(image)[0]
-    #             data_face = pickle.loads(open('enter.pickle', 'rb').read())
-    #             otv = []
-    #             for face in data_face:
-    #                 if not face_recognition.compare_faces([face], face_encoding):
-    #                     otv.append(face)
-    #             if len(otv) != len(data_face):
-    #                 enter_unknown = files.read_unknown()
-    #                 try:
-    #                     enter_unknown.pop(0)
-    #                 except IndexError:
-    #                     ch = ch
-    #                 files.update_unknown(enter_unknown)
-    #                 enter_known = files.read_known()
-    #                 enter_known.append(message.caption)
-    #                 files.update_known(enter_known)
-    #             bot.reply_to(message, f'Добавил пользователя с именем {message.caption} в базу данных!')
-    #             with open('do_stop.json', 'w') as file:
-    #                 json.dump(True, file)
-        
+            # if message.caption == None:
+            #     bot.reply_to(message, 'Вы не написали, как назвать человека в базе данных! Напишите это в сообщении к фото!')
+            # else:
+            #     data = files.read_db()
+            #     first = len(data)
+            #     data[message.caption] = {
+            #         'name': message.caption,
+            #         'photo': f'media/{message.caption}.jpg'
+            #     }
+            #     if first == len(data):
+            #         bot.reply_to(message, 'Пользователь с таким именем уже существует! Напишите другое')
+            #         return
+            #     file_info = bot.get_file(message.photo[1].file_id)
+            #     downloaded_file = bot.download_file(file_info.file_path)
+            #     with open(f'media/{message.caption}.jpg', 'wb') as new_file:
+            #         new_file.write(downloaded_file)
+            #     with open('db.json', 'w') as file:
+            #         json.dump(data, file)
+            #     image = face_recognition.load_image_file(f"media/{message.caption}.jpg")
 
-
+            #     face_encoding = face_recognition.face_encodings(image)[0]
+            #     data_face = pickle.loads(open('enter.pickle', 'rb').read())
+            #     otv = []
+            #     for face in data_face:
+            #         if not face_recognition.compare_faces([face], face_encoding):
+            #             otv.append(face)
+            #     if len(otv) != len(data_face):
+            #         enter_unknown = files.read_unknown()
+            #         try:
+            #             enter_unknown.pop(0)
+            #         except IndexError:
+            #             ch = ch
+            #         files.update_unknown(enter_unknown)
+            #         enter_known = files.read_known()
+            #         enter_known.append(message.caption)
+            #         files.update_known(enter_known)
+            #     bot.reply_to(message, f'Добавил пользователя с именем {message.caption} в базу данных!')
+            #     with open('do_stop.json', 'w') as file:
+            #         json.dump(True, file)
 
     @bot.message_handler(commands=['static'])
     def static(message):
@@ -158,10 +165,13 @@ def bot():
             text = f'Всего находится внутри: {len(enter_known) + len(enter_unknown)} \nИзвестные: {enter}\nНеизвестных: {len(enter_unknown)}'
             bot.reply_to(message, text)
 
-    # def process(name, img):
-    #     text = f'{name} вошёл!'
-    #     for user in team_users:
-    #         bot.send_photo(user.chat_id, img, caption=text)
+def process(name, img):
+    text = f'{name} вошёл!'
+    team_users = []
+    for i in TelegramBotAdmins.objects.all():
+        team_users.append(i.telegram_id)
+    for user in team_users:
+        bot.send_photo(user, img, caption=text)
 
 
     threading.Thread(target=bot.polling).start()

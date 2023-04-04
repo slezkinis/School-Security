@@ -12,6 +12,7 @@ import datetime
 from django.core.files.base import ContentFile
 from django.utils import timezone
 import warnings
+from api.management.commands.bot import process
 
 
 warnings.simplefilter("ignore")
@@ -77,6 +78,7 @@ def api_enter(request):
                     content = ContentFile(open(path, 'rb').read())
                     person.image.save(f'Неизвестный_{person.id} вошёл {datetime.datetime.now()}.jpg', content=content, save=True)
                     person.save()
+                    process('Неизвестный', img=open(path, 'rb').read())
                     os.remove(path)
                     return Response({'name': 'Unknown', 'add': True}, status=status.HTTP_200_OK)
         else:
