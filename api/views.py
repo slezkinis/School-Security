@@ -37,17 +37,18 @@ def api_enter(request):
                 known_image = face_recognition.load_image_file(i.picture.path)
                 known_encoding = face_recognition.face_encodings(known_image)[0]
                 if face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
-                    if (timezone.now().day - i.last_exit.day) > 0 or (timezone.now().hour - i.last_exit.hour) > 0 or ((timezone.now().minute - i.last_exit.minute) >= 1):
-                        i.is_enter = True
-                        i.last_enter = datetime.datetime.now()
-                        i.save()
-                        person = History.objects.create(
-                            title=f'{i.name} вошёл',
-                            data_time=datetime.datetime.now(),
-                        )
-                        content = ContentFile(open(path, 'rb').read())
-                        person.image.save(f'history/{i.name} вошёл {datetime.datetime.now()}', content=content, save=True)
-                        person.save()
+                    if (timezone.now().day - i.last_exit.day) > 0 or (timezone.now().hour - i.last_exit.hour) > 0 or ((timezone.now().minute - i.last_exit.minute) >= 1) or (timezone.now().minute - i.last_enter.minute) >= 1:
+                        if i.is_enter == False:
+                            i.is_enter = True
+                            i.last_enter = datetime.datetime.now()
+                            i.save()
+                            person = History.objects.create(
+                                title=f'{i.name} вошёл',
+                                data_time=datetime.datetime.now(),
+                            )
+                            content = ContentFile(open(path, 'rb').read())
+                            person.image.save(f'{i.name} вошёл {datetime.datetime.now()}.jpg', content=content, save=True)
+                            person.save()
                         os.remove(path) 
                         return Response({'name': i.name, 'add': False}, status=status.HTTP_200_OK)
                     os.remove(path) 
@@ -74,7 +75,7 @@ def api_enter(request):
                         data_time=datetime.datetime.now(),
                     )
                     content = ContentFile(open(path, 'rb').read())
-                    person.image.save(f'history/Неизвестный_{person.id} вошёл {datetime.datetime.now()}', content=content, save=True)
+                    person.image.save(f'Неизвестный_{person.id} вошёл {datetime.datetime.now()}.jpg', content=content, save=True)
                     person.save()
                     os.remove(path)
                     return Response({'name': 'Unknown', 'add': True}, status=status.HTTP_200_OK)
@@ -105,16 +106,17 @@ def api_exit(request):
                 known_image = face_recognition.load_image_file(i.picture.path)
                 known_encoding = face_recognition.face_encodings(known_image)[0]
                 if face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
-                    if (timezone.now().day - i.last_enter.day) > 0 or (timezone.now().hour - i.last_enter.hour) > 0 or ((timezone.now().minute - i.last_enter.minute) >= 1):
-                        i.is_enter = False
-                        i.last_exit = datetime.datetime.now()
-                        i.save()
-                        person = History.objects.create(
-                            title=f'{i.name} вышел',
-                            data_time=datetime.datetime.now(),
-                        )
-                        content = ContentFile(open(path, 'rb').read())
-                        person.image.save(f'history/{i.name} вышел {datetime.datetime.now()}', content=content, save=True)
+                    if (timezone.now().day - i.last_enter.day) > 0 or (timezone.now().hour - i.last_enter.hour) > 0 or ((timezone.now().minute - i.last_enter.minute) >= 1) or (timezone.now().minute - i.last_exit.minute) >= 1:
+                        if i.is_enter == True:
+                            i.is_enter = False
+                            i.last_exit = datetime.datetime.now()
+                            i.save()
+                            person = History.objects.create(
+                                title=f'{i.name} вышел',
+                                data_time=datetime.datetime.now(),
+                            )
+                            content = ContentFile(open(path, 'rb').read())
+                            person.image.save(f'{i.name} вышел {datetime.datetime.now()}.jpg', content=content, save=True)
                         os.remove(path) 
                         return Response({'name': i.name, 'delete': False}, status=status.HTTP_200_OK)
                     os.remove(path) 
@@ -124,7 +126,7 @@ def api_exit(request):
                     known_image = face_recognition.load_image_file(i.picture.path)
                     known_encoding = face_recognition.face_encodings(known_image)[0]
                     if face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
-                        if (timezone.now().hour - i.last_enter.hour) > 1 or ((timezone.now().minute - i.last_enter.minute) >= 1):
+                        if (timezone.now().hour - i.last_enter.hour) > 1 or ((timezone.now().minute - i.last_enter.minute) >= 1) or (timezone.now().minute - i.last_exit.minute) >= 1:
                             os.remove(i.picture.path)
                             b = i.id
                             UnknownEnterPerson.objects.filter(id=i.id).delete()
@@ -133,7 +135,7 @@ def api_exit(request):
                                 data_time=datetime.datetime.now(),
                             )
                             content = ContentFile(open(path, 'rb').read())
-                            person.image.save(f'history/Неизвестный_{person.id} вышел {datetime.datetime.now()}', content=content, save=True)
+                            person.image.save(f'Неизвестный_{person.id} вышел {datetime.datetime.now()}.jpg', content=content, save=True)
                             os.remove(path) 
                             return Response({'name': 'Unknown', 'delete': True}, status=status.HTTP_200_OK)
                     os.remove(path) 

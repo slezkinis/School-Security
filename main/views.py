@@ -88,6 +88,9 @@ def history(request):
         }
         if person.image:
             need['photo'] = request.build_absolute_uri(person.image.url)
+        else:
+            need['photo'] = request.build_absolute_uri('media/icon/info.svg')
+            print(request.build_absolute_uri('media/icon/info.svg'))
         people_history.append(
             need
         )
