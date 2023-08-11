@@ -29,6 +29,7 @@ def bot1():
     team_users = []
     for person in TelegramBotAdmins.objects.all():
         team_users.append(person.telegram_id)
+    print(team_users)
     bot = telebot.TeleBot(TOKEN)
 
     user_step = {}
@@ -42,7 +43,8 @@ def bot1():
 
     @bot.message_handler(commands=['on'])
     def subscribe_chat(message):
-        team_users = []
+        global team_users
+        team_users = []        
         for person in TelegramBotAdmins.objects.all():
             team_users.append(person.telegram_id)
         if message.chat.id in team_users:
@@ -54,6 +56,8 @@ def bot1():
 
     @bot.message_handler(commands=['clear'])
     def subscribe_chat(message):
+        global team_users
+        team_users = []
         for person in TelegramBotAdmins.objects.all():
             team_users.append(person.telegram_id)
         if message.chat.id in team_users:
@@ -69,7 +73,7 @@ def bot1():
             bot.reply_to(message, "Вы не имеете доступ к этой команде!")
 
 
-    @bot.message_handler(func=lambda message: user_step.get(message.chat.id) == TEAM_USER_LOGGING)
+    @bot.message_handler(func=lambda message: user_step.get(message.chat.id) == TEAM_USER_LOGGING and '/' not in message.text)
     def team_user_login(message):
         if message.text == TELEGRAM_KEY:
             person = TelegramBotAdmins.objects.create(
@@ -85,14 +89,15 @@ def bot1():
 
     @bot.message_handler(commands=['off'])
     def team_user_logout(message):
-        team_users = []
-        for person in TelegramBotAdmins.objects.all():
-            team_users.append(person.telegram_id)
+        global team_users
         if message.chat.id not in team_users:
             bot.reply_to(message, "Вы и так не получаете сообщения!")
         else:
             TelegramBotAdmins.objects.filter(telegram_id=message.chat.id).delete()
             bot.reply_to(message, "Вы исключены из рассылки! Для включения в рассылку напишите /on")
+        team_users = []
+        for person in TelegramBotAdmins.objects.all():
+            team_users.append(person.telegram_id)
 
 
     # @bot.message_handler(content_types=['photo'])
@@ -148,6 +153,10 @@ def bot1():
 
     @bot.message_handler(commands=['static'])
     def static(message):
+        global team_users
+        team_users = []
+        for i in TelegramBotAdmins.objects.all():
+            team_users.append(i.telegram_id)
         if message.chat.id not in team_users:
             bot.reply_to(message, "Вы не имеете доступ к этой команде!")
         else:
@@ -165,14 +174,15 @@ def bot1():
             text = f'Всего находится внутри: {len(enter_known) + len(enter_unknown)} \nИзвестные: {enter}\nНеизвестных: {len(enter_unknown)}'
             bot.reply_to(message, text)
 
+    threading.Thread(target=bot.polling).start()
 def process(name, img):
+    global team_users
     text = f'{name} вошёл!'
     team_users = []
     for i in TelegramBotAdmins.objects.all():
         team_users.append(i.telegram_id)
     for user in team_users:
         bot.send_photo(user, img, caption=text)
-
 
     threading.Thread(target=bot.polling).start()
         
