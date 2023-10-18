@@ -48,6 +48,15 @@ class UnknownEnterPerson(models.Model):
         return f'Unknown {self.last_enter}'
 
 
+class TemplatePerson(models.Model):
+    picture = models.ImageField('Фото человека')
+    last_seen = models.DateTimeField(
+        'Последний вход человека',
+        default=timezone.now,
+        db_index=True
+    )
+
+    
 class History(models.Model):
     title = models.CharField('Название', max_length=100)
     data_time = models.DateTimeField(

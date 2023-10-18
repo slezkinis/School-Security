@@ -5,7 +5,7 @@ from rest_framework import status
 from django.core.files.storage import default_storage
 import face_recognition
 import json
-from .models import Person, UnknownEnterPerson, History
+from .models import Person, UnknownEnterPerson, History, TemplatePerson
 import os
 from rest_framework.serializers import ValidationError
 import datetime
@@ -36,6 +36,28 @@ def api_enter(request):
             except IndexError:
                 raise ValidationError('Error!')
                 return
+            for i in TemplatePerson.objects.all():
+                known_image = face_recognition.load_image_file(i.picture.path)
+                known_encoding = face_recognition.face_encodings(known_image)[0]
+                if not face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
+                    template_person = TemplatePerson.objects.create(last_seen=datetime.datetime.now())
+                    content = ContentFile(open(path, 'rb').read())
+                    template_person.picture.save(f'template/test_{template_person.id}.jpg', content=content, save=True)
+                    os.remove(path)
+                    return Response({'name': 'Not_ok', 'add': False}, status=status.HTTP_200_OK)
+                else:
+                    try:
+                        os.remove(i.picture.path)
+                    except:
+                        a = 1
+                    TemplatePerson.objects.filter(id=i.id).delete() 
+                    break
+            else:
+                template_person = TemplatePerson.objects.create(last_seen=datetime.datetime.now())
+                content = ContentFile(open(path, 'rb').read())
+                template_person.picture.save(f'template/test_{template_person.id}.jpg', content=content, save=True)
+                os.remove(path)
+                return Response({'name': 'Not_ok', 'add': False}, status=status.HTTP_200_OK)
             for i in Person.objects.all():
                 known_image = face_recognition.load_image_file(i.picture.path)
                 known_encoding = face_recognition.face_encodings(known_image)[0]

@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Person, UnknownEnterPerson, History, TelegramBotAdmins
+from .models import Person, UnknownEnterPerson, History, TelegramBotAdmins, TemplatePerson
+
+
+@admin.register(TemplatePerson)
+class TemplatePersonAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(Person)
