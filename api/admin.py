@@ -9,7 +9,7 @@ class TemplatePersonAdmin(admin.ModelAdmin):
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    pass
+    list_display=['name', 'is_enter']
 
 
 @admin.register(UnknownEnterPerson)
