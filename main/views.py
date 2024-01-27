@@ -65,23 +65,35 @@ def is_manager(user):
 
 @user_passes_test(is_manager, login_url='main:login')
 def index(request):
-    unknown_people = []
-    known_people = []
-    for person in UnknownEnterPerson.objects.all():
-        unknown_people.append(
-            {'name': 'Неизвестный', 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
-        )
-    for person in Person.objects.filter(is_enter=True).order_by('-last_enter'):
-        known_people.append(
-            {'name': person.name, 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
-        )
-    return render(request, 'index.html', {'unknown_people': unknown_people, 'known_people': known_people})
+    # unknown_people = []
+    # known_people = []
+    # for person in UnknownEnterPerson.objects.all():
+    #     unknown_people.append(
+    #         {'name': 'Неизвестный', 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
+    #     )
+    # for person in Person.objects.filter(is_enter=True).order_by('-last_enter'):
+    #     known_people.append(
+    #         {'name': person.name, 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
+    #     )
+    # return render(request, 'index.html', {'unknown_people': unknown_people, 'known_people': known_people})
+    return redirect('main:history')
 
 
 @user_passes_test(is_manager, login_url='main:login')
 def history(request):
+    page = 1
+    next_page = 0
+    try:
+        page = int(request.GET['page'])
+    except:
+        pass
     people_history = []
-    for person in History.objects.all().order_by('-data_time'):
+    histories = History.objects.all().order_by('-data_time')
+    if len(histories) > 15:
+        next_page = page + 1
+    if len(histories[(page - 1) * 15:]) <= 15:
+        next_page = 0
+    for person in histories[(page - 1) * 15: page * 15]:
         need = {
             'title': person.title,
             'date': person.data_time,
@@ -93,4 +105,8 @@ def history(request):
         people_history.append(
             need
         )
-    return render(request, 'history.html', {'people': people_history})
+    if page == 1:
+        previous_page = 0
+    else:
+        previous_page = page - 1
+    return render(request, 'history.html', {'people': people_history, 'next_page': next_page, 'previous_page': previous_page})

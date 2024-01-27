@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}История входов/выходов{% endblock %}
+{% block title %}История проходов{% endblock %}
 
 {% block content %}
   <center>
-    <h2>История входов/выходов</h2>
+    <h2>История проходов</h2>
   </center>
-  <meta http-equiv="refresh" content="5">
+  <meta http-equiv="refresh" content="15">
   <hr/>
   <div class="container">
    <table class="table table-responsive">
@@ -25,5 +25,18 @@
       </tr>
     {% endfor %}
    </table>
+   <hr>
+   {% if previous_page != 0 or next_page != 0%}
+      {% if previous_page != 0 %}
+        <a href="?page={{previous_page}}" class="previous">&laquo; Предыдущая страница</a>
+      {% else %}
+        <a href="" class="previous disabled">&laquo; Предыдущая страница</a>
+      {% endif %}
+      {% if next_page != 0 %}
+      <a href="?page={{next_page}}" class="next">Следующая страница &raquo;</a>
+      {% else %}
+      <a href="" class="next disabled">Следующая страница &raquo;</a>
+      {% endif %}
+   {% endif %}
   </div>
 {% endblock %}

@@ -70,19 +70,19 @@ def api_enter(request):
                     known_image = face_recognition.load_image_file(i.picture.path)
                     known_encoding = face_recognition.face_encodings(known_image)[0]
                     if face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
-                        if (timezone.now().day - i.last_exit.day) > 0 or (timezone.now().hour - i.last_exit.hour) > 0 or ((timezone.now().minute - i.last_exit.minute) >= 1):
+                        if (timezone.now().day - i.last_enter.day) > 0 or (timezone.now().hour - i.last_enter.hour) > 0 or ((timezone.now().minute - i.last_enter.minute) >= 1):
                             if i.is_enter == False:
-                                i.is_enter = True
-                                i.last_enter = datetime.datetime.now()
-                                i.save()
+                                # i.is_enter = True
                                 person = History.objects.create(
-                                    title=f'{i.name} вошёл',
+                                    title=f'{i.name} прошёл',
                                     data_time=datetime.datetime.now(),
                                 )
                                 content = ContentFile(open(path, 'rb').read())
                                 person.image.save(f'{i.name} вошёл {datetime.datetime.now()}.jpg', content=content, save=True)
                                 person.save()
                             os.remove(path)
+                            i.last_enter = datetime.datetime.now()
+                            i.save()
                             answer.append({'name': i.name, 'add': False})
                             break
                         os.remove(path)
@@ -94,8 +94,16 @@ def api_enter(request):
                         known_image = face_recognition.load_image_file(i.picture.path)
                         known_encoding = face_recognition.face_encodings(known_image)[0]
                         if face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
+                            if (timezone.now().day - i.last_enter.day) > 0 or (timezone.now().hour - i.last_enter.hour) > 0 or ((timezone.now().minute - i.last_enter.minute) >= 1):
+                                person = History.objects.create(
+                                    title=f'Неизвестный прошёл',
+                                    data_time=datetime.datetime.now(),
+                                )
+                                content = ContentFile(open(path, 'rb').read())
+                                person.image.save(f'{person.id} вошёл {datetime.datetime.now()}.jpg', content=content, save=True)
                             i.last_enter = datetime.datetime.now()
                             i.save()
+                            answer.append({'name': 'Unknown'})
                             os.remove(path)
                             need_break = True
                             break    
@@ -109,7 +117,7 @@ def api_enter(request):
                         content = ContentFile(open(path, 'rb').read())
                         unknown.picture.save(f'unknown/Unknown {unknown.id}.jpg', content=content, save=True)
                         person = History.objects.create(
-                            title=f'Неизвестный вошёл',
+                            title=f'Неизвестный прошёл',
                             data_time=datetime.datetime.now(),
                         )
                         content = ContentFile(open(path, 'rb').read())
