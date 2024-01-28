@@ -61,7 +61,11 @@ class LogoutView(auth_views.LogoutView):
 def is_manager(user):
     return user.has_perm('api.view_history')
 
+def is_auth(user):
+    return user.is_authenticated
 
+
+@user_passes_test(is_auth, login_url='main:login')
 @user_passes_test(is_manager, login_url='main:no_perm')
 def index(request):
     # unknown_people = []
@@ -78,6 +82,7 @@ def index(request):
     return redirect('main:history')
 
 
+@user_passes_test(is_auth, login_url='main:login')
 @user_passes_test(is_manager, login_url='main:no_perm')
 def history(request):
     page = 1
