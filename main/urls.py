@@ -10,5 +10,6 @@ urlpatterns = [
     path('', index, name='index'),
     path('history', history, name='history'),
     path('login/', LoginView.as_view(), name="login"),
-    path('logout/', LogoutView.as_view(), name="logout")
+    path('logout/', LogoutView.as_view(), name="logout"),
+    path('no_perm', no_perm, name='no_perm')
 ]

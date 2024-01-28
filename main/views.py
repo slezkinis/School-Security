@@ -45,10 +45,9 @@ class LoginView(View):
             user = authenticate(request, username=username, password=password)
             if user:
                 login(request, user)
-                if user.is_staff:  # FIXME replace with specific permission
+                if user.has_perm('api.view_history'):  # FIXME replace with specific permission
                     return redirect("main:index")
-                return redirect("start_page")
-
+                return redirect('main:no_perm')
         return render(request, "login.html", context={
             'form': form,
             'ivalid': True,
@@ -60,10 +59,10 @@ class LogoutView(auth_views.LogoutView):
 
 
 def is_manager(user):
-    return user.is_staff
+    return user.has_perm('api.view_history')
 
 
-@user_passes_test(is_manager, login_url='main:login')
+@user_passes_test(is_manager, login_url='main:no_perm')
 def index(request):
     # unknown_people = []
     # known_people = []
@@ -79,7 +78,7 @@ def index(request):
     return redirect('main:history')
 
 
-@user_passes_test(is_manager, login_url='main:login')
+@user_passes_test(is_manager, login_url='main:no_perm')
 def history(request):
     page = 1
     next_page = 0
@@ -110,3 +109,7 @@ def history(request):
     else:
         previous_page = page - 1
     return render(request, 'history.html', {'people': people_history, 'next_page': next_page, 'previous_page': previous_page})
+
+
+def no_perm(request):
+    return render(request, 'no_perm.html')
