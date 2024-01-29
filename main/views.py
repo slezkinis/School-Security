@@ -61,6 +61,7 @@ class LogoutView(auth_views.LogoutView):
 def is_manager(user):
     return user.has_perm('api.view_history')
 
+
 def is_auth(user):
     return user.is_authenticated
 
