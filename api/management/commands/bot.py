@@ -184,5 +184,5 @@ def process(name, img):
     for user in team_users:
         bot.send_photo(user, img, caption=text)
 
-    threading.Thread(target=bot.polling).start()
+    # threading.Thread(target=bot.polling).start()
         
