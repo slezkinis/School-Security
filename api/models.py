@@ -6,6 +6,8 @@ class Person(models.Model):
     name = models.CharField('Имя человека', max_length=100)
     picture = models.ImageField('Фото человека')
     is_enter = models.BooleanField('Внутри ли человек')
+    is_food_conected = models.BooleanField("Питается ли человек в столовой", default=False)
+    last_eat = models.DateField("Последний приём пищи", default=timezone.now, db_index=True) 
     last_enter = models.DateTimeField(
         'Последний вход человека',
         default=timezone.now,

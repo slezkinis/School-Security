@@ -42,22 +42,16 @@ def api_enter(request):
                 for i in TemplatePerson.objects.all():
                     known_image = face_recognition.load_image_file(i.picture.path)
                     known_encoding = face_recognition.face_encodings(known_image)[0]
-                    if not face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
-                        template_person = TemplatePerson.objects.create(last_seen=datetime.datetime.now())
-                        content = ContentFile(open(path, 'rb').read())
-                        template_person.picture.save(f'template/test_{template_person.id}.jpg', content=content, save=True)
-                        os.remove(path)
-                        answer.append({'name': 'Not_ok', 'add': False})
-                        need_continue = True
-                        break
-                    else:
+                    if face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
                         try:
                             os.remove(i.picture.path)
                         except:
                             a = 1
                         TemplatePerson.objects.filter(id=i.id).delete() 
-                        break
+                        break                        
                 else:
+                    need_continue = True
+                    answer.append({'name': 'Not_ok', 'add': False})
                     template_person = TemplatePerson.objects.create(last_seen=datetime.datetime.now())
                     content = ContentFile(open(path, 'rb').read())
                     template_person.picture.save(f'template/test_{template_person.id}.jpg', content=content, save=True)
@@ -184,6 +178,40 @@ def api_exit(request):
                 else:
                     os.remove(path)
                     return Response({'name': 'Unknown', 'delete': False}, status=status.HTTP_200_OK)
+        else:
+            raise ValidationError('Authorization error!')
+    else:
+        raise ValidationError('Authorization error!')
+
+@api_view(['POST'])
+def api_dining(request):
+    if 'Authorization' in request.headers:
+        if request.headers['Authorization'] == '1234':
+            start_time = time.thread_time_ns()
+            path = f'media/test/eat/{start_time}.png'
+            with default_storage.open(f'test/eat/{start_time}.png', 'wb+') as destination:
+                for chunk in request.data['file'].chunks():
+                    destination.write(chunk)
+            unknown_image = face_recognition.load_image_file(path)
+            try:
+                unknown_encoding = face_recognition.face_encodings(unknown_image)[0]
+            except IndexError:
+                raise ValidationError('Error!')
+                return
+            for i in Person.objects.all():
+                known_image = face_recognition.load_image_file(i.picture.path)
+                known_encoding = face_recognition.face_encodings(known_image)[0]
+                if face_recognition.compare_faces([known_encoding], unknown_encoding)[0]:
+                    if i.is_food_conected and datetime.date.today() >= i.last_eat:
+                        i.last_eat = datetime.date.today()
+                        i.save()
+                        os.remove(path) 
+                        return Response({'name': i.name, 'ok': True}, status=status.HTTP_200_OK)
+                    os.remove(path) 
+                    return Response({'name': i.name, 'ok': False}, status=status.HTTP_200_OK)
+            else:
+                os.remove(path)
+                return Response({'name': "Unknown", 'ok': False}, status=status.HTTP_200_OK)
         else:
             raise ValidationError('Authorization error!')
     else:

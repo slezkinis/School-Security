@@ -22,15 +22,11 @@
           <li>
             <a href="{% url 'main:index' %}">Главная</a>
           </li>
-          <li>
-            <a href="{% url 'main:history' %}">История входов/выходов</a>
-          </li>
-          <!-- <li>
-            <a href="">Рестораны</a>
-          </li>
-          <li>
-            <a href="">Заказы</a>
-          </li> -->
+          {% if can_history %}
+            <li>
+              <a href="{% url 'main:history' %}">История входов/выходов</a>
+            </li>
+          {% endif %}
         </ul>
         <ul class="nav navbar-nav navbar-right">
           <li>

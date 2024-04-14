@@ -1,14 +1,14 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, redirect
 from django import forms
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
-from django.core.files.storage import default_storage
+import datetime
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from api.models import Person, UnknownEnterPerson, History
-import datetime
+from django.db.models import Q
 
 
 class Login(forms.Form):
@@ -62,23 +62,34 @@ class LogoutView(auth_views.LogoutView):
 def is_manager(user):
     return user.is_staff
 
+def can_view_history(user):
+    return not user.groups.filter(name="Столовая").exists()
+
 
 @user_passes_test(is_manager, login_url='main:login')
 def index(request):
-    unknown_people = []
-    known_people = []
-    for person in UnknownEnterPerson.objects.all():
-        unknown_people.append(
-            {'name': 'Неизвестный', 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
-        )
-    for person in Person.objects.filter(is_enter=True).order_by('-last_enter'):
-        known_people.append(
-            {'name': person.name, 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
-        )
-    return render(request, 'index.html', {'unknown_people': unknown_people, 'known_people': known_people})
+    if request.user.groups.filter(name="Столовая").exists():
+        people = []
+        for person in Person.objects.filter(Q(is_food_conected=True) & Q(last_eat__lt=datetime.date.today()) & Q(is_enter=True)):
+            people.append(
+                {'name': person.name, 'photo': request.build_absolute_uri(person.picture.url)}
+            )
+        return render(request, 'index.html', {'people': people, "can_history": False, "status": "eat", "count": len(Person.objects.filter(Q(is_food_conected=True) & Q(last_eat__lt=datetime.date.today()) & Q(is_enter=True)))})    
+    else:
+        unknown_people = []
+        known_people = []
+        for person in UnknownEnterPerson.objects.all():
+            unknown_people.append(
+                {'name': 'Неизвестный', 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
+            )
+        for person in Person.objects.filter(is_enter=True).order_by('-last_enter'):
+            known_people.append(
+                {'name': person.name, 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
+            )
+        return render(request, 'index.html', {'unknown_people': unknown_people, 'known_people': known_people, "can_history": True, "status": "security"})     
 
 
-@user_passes_test(is_manager, login_url='main:login')
+@user_passes_test(can_view_history, login_url='/')
 def history(request):
     people_history = []
     for person in History.objects.all().order_by('-data_time'):
@@ -93,4 +104,4 @@ def history(request):
         people_history.append(
             need
         )
-    return render(request, 'history.html', {'people': people_history})
+    return render(request, 'history.html', {'people': people_history,  "can_history": can_view_history(request.user)})

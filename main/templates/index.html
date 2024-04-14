@@ -1,54 +1,80 @@
 {% extends 'base.html' %}
 
-{% block title %}Список вошедших{% endblock %}
+{% block title %}Общее состояние{% endblock %}
 
 {% block content %}
+{% if status == "security" %}
   <center>
     <h2>Список вошедших</h2>
   </center>
-  <meta http-equiv="refresh" content="10">
+  <meta http-equiv="refresh" content="60">
   <hr/>
   <center>
     <h3>Неизвестные</h3>
   </center>
   <div class="container">
-   <table class="table table-responsive">
-    <tr>
-      <th>Фото человека</th>
-      <th>Имя</th>
-      <th>Время входа</th>
-    </tr>
-
-    {% for person in unknown_people %}
+    <table class="table table-responsive">
       <tr>
-        <td>
-          <img src="{{person.photo}}" class="card-img" alt="Фото книги" height="100px">
-        </td>
-        <td>{{person.name}}</td>
-        <td>{{person.date}}</td>
+        <th>Фото человека</th>
+        <th>Имя</th>
+        <th>Время входа</th>
       </tr>
-    {% endfor %}
-   </table>
-    <hr/>
-    <center>
-      <h3>Известные</h3>
-    </center>
-   <table class="table table-responsive">
-    <tr>
-      <th>Фото человека</th>
-      <th>Имя</th>
-      <th>Время входа</th>
-    </tr>
 
-    {% for person in known_people %}
+      {% for person in unknown_people %}
+        <tr>
+          <td>
+            <img src="{{person.photo}}" class="card-img" alt="Фото книги" height="100px">
+          </td>
+          <td>{{person.name}}</td>
+          <td>{{person.date}}</td>
+        </tr>
+      {% endfor %}
+    </table>
+      <hr/>
+      <center>
+        <h3>Известные</h3>
+      </center>
+    <table class="table table-responsive">
       <tr>
-        <td>
-          <img src="{{person.photo}}" class="card-img" alt="Фото книги" height="100px">
-        </td>
-        <td>{{person.name}}</td>
-        <td>{{person.date}}</td>
+        <th>Фото человека</th>
+        <th>Имя</th>
+        <th>Время входа</th>
       </tr>
-    {% endfor %}
-   </table>
+
+      {% for person in known_people %}
+        <tr>
+          <td>
+            <img src="{{person.photo}}" class="card-img" alt="Фото человека" height="100px">
+          </td>
+          <td>{{person.name}}</td>
+          <td>{{person.date}}</td>
+        </tr>
+      {% endfor %}
+    </table>
   </div>
+  {% elif status == "eat" %}
+  <center>
+    <h2>Должны прийти в столовую</h2>
+    <h5>Общее количество: {{count}}</h5>
+  </center>
+  <meta http-equiv="refresh" content="10">
+  <hr/>
+  <div class="container">
+    <table class="table table-responsive">
+      <tr>
+        <th>Фото человека</th>
+        <th>Имя</th>
+      </tr>
+
+      {% for person in people %}
+        <tr>
+          <td>
+            <img src="{{person.photo}}" class="card-img" alt="Фото человека" height="100px">
+          </td>
+          <td>{{person.name}}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endif %}
 {% endblock %}
