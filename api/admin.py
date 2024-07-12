@@ -9,7 +9,7 @@ class TemplatePersonAdmin(admin.ModelAdmin):
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    list_display=['name', 'is_enter']
+    list_display=['name', 'is_enter', "is_food_conected"]
 
 
 @admin.register(UnknownEnterPerson)
