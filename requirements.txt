@@ -12,3 +12,9 @@ sqlparse==0.4.3
 requests
 pyTelegramBotAPI==4.10.0
 django-debug-toolbar
+channels
+daphne
+opencv-python
+channels==3.0.5
+imutils==0.5.4
+websocket-client==1.8.0

@@ -26,6 +26,11 @@ SECRET_KEY = 'django-insecure--9a2^cn@j!!n^$sgsjur$5gqsdpo7=3bi%6588i84o$xa(-8&o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 ALLOWED_HOSTS = ['*']
 
 TOKEN = '5223025765:AAENLkIY_0pgBZsv5dad8XCr4dba81OZr_4'
@@ -36,6 +41,8 @@ INTERNAL_IPS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -82,7 +89,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'school_security.wsgi.application'
+ASGI_APPLICATION = 'school_security.asgi.application'
 
 
 # Database
