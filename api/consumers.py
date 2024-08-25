@@ -13,9 +13,8 @@ from api.management.commands.bot import process
 from io import BytesIO
 from django.utils import timezone
 
-
-
 from .models import *
+
 
 class EnterConsumer(AsyncConsumer):
 
@@ -28,10 +27,6 @@ class EnterConsumer(AsyncConsumer):
         frame = cv2.imdecode(npdata,1)
         unknown_encodings = face_recognition.face_encodings(frame)
         for index, enc in enumerate(unknown_encodings):
-            # for temp in TemplatePerson.objects.all():
-            #     temp_enc = face_recognition.face_encodings(face_recognition.load_image_file(temp.picture.path))[0]
-            #     if face_recognition.compare_faces([temp_enc], unknown_encodings)[0]
-            # temp_encodings = [face_recognition.face_encodings(face_recognition.load_image_file(temp.picture.path))[0] async for temp in await sync_to_async(TemplatePerson.objects.all)()]
             temp_encodings = []
             async for temp in await sync_to_async(TemplatePerson.objects.all)():
                 try:
@@ -86,7 +81,6 @@ class EnterConsumer(AsyncConsumer):
                         await sync_to_async(history.save)()
                         fp_bytes.close()
             else:
-                # old_unknown_encodings = [face_recognition.face_encodings(face_recognition.load_image_file(p.picture.path))[0] async for p in await sync_to_async(UnknownEnterPerson.objects.all)()]
                 old_unknown_encodings = []
                 async for p in await sync_to_async(UnknownEnterPerson.objects.all)():
                     try:
@@ -137,19 +131,10 @@ class EnterConsumer(AsyncConsumer):
 
 
 class ExitConsumer(AsyncConsumer):
-
     async def websocket_connect(self, event):
-        # print(self.channel_name)
-        # self.room_group_name = "test"
-        # self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.send({"type": "websocket.accept"})
-        # await self.send({
-        #     "type": "websocket.send",
-        #     "text": "Hello from Django socket 1"
-        # })
 
     async def websocket_receive(self, text_data):
-        # print("he;")
         data = base64.b64decode(text_data["bytes"],' /')
         npdata = np.fromstring(data,dtype=np.uint8)
         frame = cv2.imdecode(npdata,1)
@@ -205,15 +190,43 @@ class ExitConsumer(AsyncConsumer):
                         await sync_to_async(unknown_profile.save)()
         # print(unknown_encodings)
         cv2.imwrite("test2.png", frame)
-        # self.channel_layer.group_send(self.room_group_name, {"status": "for_all"})
-        # await self.send({
-        #     "type": "websocket.send",
-        #     "text": "Hello from Django socket"
-        # })
-        # await self.send({
-        #     "type": "websocket.send",
-        #     "text": "Hello from Django socket"
-        # })
 
+    
     async def websocket_disconnect(self, event):
         pass
+
+
+# Для голосового и т.д
+    # async def chat_message(self, event):
+    #     message = event["message"]
+    #     print(message)
+    #     # Send message to WebSocket
+    #     # await self.send(json.dumps({"message": message}))
+    #     await self.send({
+    #         "type": "websocket.send",
+    #         "text": message
+    #     })
+
+    # async def chat_message(self, event):
+    #     message = event["message"]
+    #     print(message)
+    #     # Send message to WebSocket
+    #     # await self.send(json.dumps({"message": message}))
+    #     await self.send({
+    #         "type": "websocket.send",
+    #         "text": message
+    #     })
+
+    # async def websocket_connect(self, event):
+    #     self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+    #     self.room_group_name = "chat_%s" % self.room_name
+
+    #     # Join room group
+    #     await self.channel_layer.group_add(
+    #         self.room_group_name, self.channel_name
+    #     )
+    #     await self.send({"type": "websocket.accept"})
+
+    #     await self.channel_layer.group_send(
+    #         self.room_group_name, {"type": "chat_message", "message": "New_video"}
+    #     )
