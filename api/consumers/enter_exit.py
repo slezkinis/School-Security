@@ -1,7 +1,6 @@
 from channels.consumer import AsyncConsumer
 import base64
 import os
-from pprint import pprint
 import numpy as np
 import cv2
 import face_recognition
@@ -13,7 +12,7 @@ from api.management.commands.bot import process
 from io import BytesIO
 from django.utils import timezone
 
-from .models import *
+from api.models import *
 
 
 class EnterConsumer(AsyncConsumer):
@@ -207,15 +206,6 @@ class ExitConsumer(AsyncConsumer):
     #         "text": message
     #     })
 
-    # async def chat_message(self, event):
-    #     message = event["message"]
-    #     print(message)
-    #     # Send message to WebSocket
-    #     # await self.send(json.dumps({"message": message}))
-    #     await self.send({
-    #         "type": "websocket.send",
-    #         "text": message
-    #     })
 
     # async def websocket_connect(self, event):
     #     self.room_name = self.scope["url_route"]["kwargs"]["room_name"]

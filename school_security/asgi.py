@@ -10,7 +10,7 @@ import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'school_security.settings')
 
 
-from api.consumers import *
+from api.consumers.enter_exit import *
 
 django_asgi_app = get_asgi_application()
 
