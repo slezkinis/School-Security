@@ -19,21 +19,17 @@ from api.models import *
 class EnterConsumer(AsyncConsumer):
 
     async def websocket_connect(self, event):
-        # print(self.scope)
-        # print(self.scope["user"])
-        if self.scope["url_route"]["kwargs"]["id"] != "-1":
-            self.channel_name = self.scope["url_route"]["kwargs"]["id"]
-            self.room_group_name = "enter_camera"
+        if self.scope["url_route"]["kwargs"]["id"] == "-1":
+            self.room_group_name = "enter_viewer"
         else:
-            if self.scope["user"].is_authenticated:
-                self.room_group_name = "enter_viewer"
+            self.room_group_name = "enter_camera"
+            self.camera_id = self.scope["url_route"]["kwargs"]["id"]
         await self.channel_layer.group_add(
             self.room_group_name, self.channel_name
         )
         await self.send({"type": "websocket.accept"})
 
     async def websocket_receive(self, text_data):
-        print(self.channel_name)
         data = base64.b64decode(text_data["bytes"],' /')
         npdata = np.fromstring(data,dtype=np.uint8)
         frame = cv2.imdecode(npdata,1)
@@ -145,12 +141,12 @@ class EnterConsumer(AsyncConsumer):
             {
                 'type': 'send.cap',
                 'image': jpg_as_text,
-                "channel_name": self.channel_name
+                "camera_id": self.camera_id
             }
         )
 
     async def send_cap(self, event):
-        unical_id = event["channel_name"]
+        unical_id = event["camera_id"]
         image = event["image"]
         dict_obj = {'id': unical_id, 'image': image.decode('utf-8')}
         await self.send({"type": "websocket.send", "text": json.dumps(dict_obj)})
