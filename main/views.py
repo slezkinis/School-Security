@@ -105,3 +105,8 @@ def history(request):
             need
         )
     return render(request, 'history.html', {'people': people_history,  "can_history": can_view_history(request.user)})
+
+
+@user_passes_test(can_view_history, login_url='/')
+def view_cameras(request):
+    return render(request, "cameras.html")

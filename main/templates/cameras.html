@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Прямой эфир с камер{% endblock %}
+
+{% block content %}
+<center>
+    <h2>Трансляция с камер</h2>
+</center>
+<hr>
+<!-- <div class="view_cameras">
+    <img id="test">
+</div> -->
+<style>
+    .cameras {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: flex-start;
+        min-height: 100vh;
+        background-color: #f0f0f0;
+    }
+
+    .group {
+        width: 45%;
+        margin: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+    }
+
+    .video-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+    .video-item {
+        width: 48%;
+        margin-bottom: 20px;
+        background-color: #000;
+    }
+
+    video {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+</style>
+<div class="cameras">
+    <div class="group">
+        <h2>Вход</h2>
+        <div class="video-container">
+            <div class="video-item">
+                <video controls>
+                    <source src="video1.mp4" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
+            </div>
+            <div class="video-item">
+                <video controls>
+                    <source src="video2.mp4" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="group">
+        <h2>Выход</h2>
+        <div class="video-container">
+            <div class="video-item">
+                <video controls>
+                    <source src="video3.mp4" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
+            </div>
+            <div class="video-item">
+                <video controls>
+                    <source src="video4.mp4" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'cameras.js'%} "></script>
+{% endblock %}
