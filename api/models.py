@@ -1,31 +1,57 @@
 from django.db import models
 from django.utils import timezone
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 import random
 import string
 
 
-class Person(models.Model):
-    name = models.CharField('Имя человека', max_length=100)
-    picture = models.ImageField('Фото человека')
-    is_enter = models.BooleanField('Внутри ли человек')
-    is_food_conected = models.BooleanField("Питается ли человек в столовой", default=False)
+class Student(models.Model):
+    name = models.CharField('Имя ученика', max_length=100)
+    picture = models.ImageField('Фото ученика')
+    is_enter = models.BooleanField('Внутри ли ученик')
+    is_food_conected = models.BooleanField("Питается ли ученик в столовой", default=False)
     last_eat = models.DateField("Последний приём пищи", default=timezone.now, db_index=True) 
     last_enter = models.DateTimeField(
-        'Последний вход человека',
+        'Последний вход ученика',
         default=timezone.now,
         db_index=True
     )
 
     last_exit = models.DateTimeField(
-        'Последний выход человека',
+        'Последний выход ученика',
         default=timezone.now,
         db_index=True
     )
 
     class Meta:
-        verbose_name = 'известный человек'
-        verbose_name_plural = 'известные люди'
+        verbose_name = 'Ученик'
+        verbose_name_plural = 'Ученики'
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Employee(models.Model):
+    name = models.CharField('Имя сотрудника', max_length=100)
+    picture = models.ImageField('Фото сотрудника')
+    is_enter = models.BooleanField('Внутри ли сотрудник')
+    access_level = models.IntegerField("Уровень доступа", default=1, validators=[MinValueValidator(1), MaxValueValidator(5)])
+    last_enter = models.DateTimeField(
+        'Последний вход сотрудника',
+        default=timezone.now,
+        db_index=True
+    )
+
+    last_exit = models.DateTimeField(
+        'Последний выход сотрудника',
+        default=timezone.now,
+        db_index=True
+    )
+
+    class Meta:
+        verbose_name = 'Сотрудник'
+        verbose_name_plural = 'Сотрудники'
 
     def __str__(self) -> str:
         return self.name

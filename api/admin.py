@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Person, UnknownEnterPerson, History, TelegramBotAdmins, TemplatePerson, EnterCamera, ExitCamera
+from .models import Student, Employee, UnknownEnterPerson, History, TelegramBotAdmins, TemplatePerson, EnterCamera, ExitCamera
 
 
 @admin.register(TemplatePerson)
@@ -7,10 +7,14 @@ class TemplatePersonAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(Person)
-class PersonAdmin(admin.ModelAdmin):
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
     list_display=['name', 'is_enter', "is_food_conected"]
 
+
+@admin.register(Employee)
+class EmployeeAdmin(admin.ModelAdmin):
+    list_display=['name', 'is_enter']
 
 @admin.register(UnknownEnterPerson)
 class UnknownPersonAdmin(admin.ModelAdmin):

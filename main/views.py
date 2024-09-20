@@ -7,7 +7,7 @@ import datetime
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-from api.models import Person, UnknownEnterPerson, History, EnterCamera, ExitCamera
+from api.models import Student, Employee, UnknownEnterPerson, History, EnterCamera, ExitCamera
 from django.db.models import Q
 
 
@@ -58,6 +58,8 @@ class LoginView(View):
 class LogoutView(auth_views.LogoutView):
     next_page = reverse_lazy('main:login')
 
+def is_auth(user):
+    return user.is_authenticated
 
 def is_manager(user):
     return user.is_staff
@@ -66,15 +68,16 @@ def can_view_history(user):
     return not user.groups.filter(name="Столовая").exists()
 
 
+@user_passes_test(is_auth, login_url='main:login')
 @user_passes_test(is_manager, login_url='main:login')
 def index(request):
     if request.user.groups.filter(name="Столовая").exists():
         people = []
-        for person in Person.objects.filter(Q(is_food_conected=True) & Q(last_eat__lt=datetime.date.today()) & Q(is_enter=True)):
+        for person in Student.objects.filter(Q(is_food_conected=True) & Q(last_eat__lt=datetime.date.today()) & Q(is_enter=True)):
             people.append(
                 {'name': person.name, 'photo': request.build_absolute_uri(person.picture.url)}
             )
-        return render(request, 'index.html', {'people': people, "can_history": False, "status": "eat", "count": len(Person.objects.filter(Q(is_food_conected=True) & Q(last_eat__lt=datetime.date.today()) & Q(is_enter=True)))})    
+        return render(request, 'index.html', {'people': people, "can_history": False, "status": "eat", "count": len(Student.objects.filter(Q(is_food_conected=True) & Q(last_eat__lt=datetime.date.today()) & Q(is_enter=True)))})    
     else:
         unknown_people = []
         known_people = []
@@ -82,17 +85,29 @@ def index(request):
             unknown_people.append(
                 {'name': 'Неизвестный', 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
             )
-        for person in Person.objects.filter(is_enter=True).order_by('-last_enter'):
+        for person in (list(Employee.objects.filter(is_enter=True).order_by('-last_enter')) + list(Student.objects.filter(is_enter=True).order_by('-last_enter'))):
             known_people.append(
                 {'name': person.name, 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
             )
         return render(request, 'index.html', {'unknown_people': unknown_people, 'known_people': known_people, "can_history": True, "status": "security"})     
 
 
+@user_passes_test(is_auth, login_url='main:login')
 @user_passes_test(can_view_history, login_url='/')
 def history(request):
+    page = 1
+    next_page = 0
+    try:
+        page = int(request.GET['page'])
+    except:
+        pass
     people_history = []
-    for person in History.objects.all().order_by('-data_time'):
+    histories = History.objects.all().order_by('-data_time')
+    if len(histories) > 10:
+        next_page = page + 1
+    if len(histories[(page - 1) * 10:]) <= 10:
+        next_page = 0
+    for person in histories[(page - 1) * 10: page * 10]:
         need = {
             'title': person.title,
             'date': person.data_time,
@@ -104,9 +119,14 @@ def history(request):
         people_history.append(
             need
         )
-    return render(request, 'history.html', {'people': people_history,  "can_history": can_view_history(request.user)})
+    if page == 1:
+        previous_page = 0
+    else:
+        previous_page = page - 1
+    return render(request, 'history.html', {'people': people_history, 'next_page': next_page, 'previous_page': previous_page, "can_history": can_view_history(request.user)})
 
 
+@user_passes_test(is_auth, login_url='main:login')
 @user_passes_test(can_view_history, login_url='/')
 def view_cameras(request):
     context = {
