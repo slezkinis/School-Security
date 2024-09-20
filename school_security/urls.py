@@ -27,3 +27,7 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+admin.site.site_header = "Администрирование CAPSIS"
+admin.site.site_title = "Админка CAPSIS"
+admin.site.index_title = "Добро пожаловать в интерфейс администратора!"

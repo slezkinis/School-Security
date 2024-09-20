@@ -18,8 +18,8 @@ application = ProtocolTypeRouter({
     'http': django_asgi_app,
     'websocket': AuthMiddlewareStack(
         URLRouter([
-            path('enter/<str:id>', EnterConsumer.as_asgi()),
-            path('exit', ExitConsumer.as_asgi()),
+            path('enter/<str:secret_key>', EnterConsumer.as_asgi()),
+            path('exit/<str:secret_key>', ExitConsumer.as_asgi()),
             # re_path(r"кщщь/(?P<room_name>\w+)/$",) для голосового помощника и камер в комнатах.
         ])
     )

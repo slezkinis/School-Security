@@ -19,11 +19,19 @@ from api.models import *
 class EnterConsumer(AsyncConsumer):
 
     async def websocket_connect(self, event):
-        if self.scope["url_route"]["kwargs"]["id"] == "-1":
+        if self.scope["url_route"]["kwargs"]["secret_key"] == "-1":
+            if not self.scope["user"].is_authenticated:
+                await self.websocket_disconnect(event), 4001
+                return
             self.room_group_name = "enter_viewer"
         else:
+            try:
+                enter_camera = await EnterCamera.objects.aget(secret_key=self.scope["url_route"]["kwargs"]["secret_key"])
+            except EnterCamera.DoesNotExist:
+                await self.websocket_disconnect(event), 4001
+                return
             self.room_group_name = "enter_camera"
-            self.camera_id = self.scope["url_route"]["kwargs"]["id"]
+            self.camera_id = enter_camera.id
         await self.channel_layer.group_add(
             self.room_group_name, self.channel_name
         )
@@ -130,18 +138,12 @@ class EnterConsumer(AsyncConsumer):
         cv2.imwrite("test.png", frame)
         retval, buffer = cv2.imencode('.jpg', frame)
         jpg_as_text = base64.b64encode(buffer)
-        # Image.fromarray()
-        # await self.send({
-        #     "type": "websocket.send",
-        #     "text": "Hello from Django socket"
-        # })
-        # print(self.channel_name)
         await self.channel_layer.group_send(
             "enter_viewer",
             {
                 'type': 'send.cap',
                 'image': jpg_as_text,
-                "camera_id": self.camera_id
+                "camera_id": str(self.camera_id)
             }
         )
 
@@ -153,14 +155,33 @@ class EnterConsumer(AsyncConsumer):
         
 
     async def websocket_disconnect(self, event):
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
+        try:
+            await self.channel_layer.group_discard(
+                self.room_group_name,
+                self.channel_name
+            )
+        except:
+            pass
 
 
 class ExitConsumer(AsyncConsumer):
     async def websocket_connect(self, event):
+        if self.scope["url_route"]["kwargs"]["secret_key"] == "-1":
+            if not self.scope["user"].is_authenticated:
+                await self.websocket_disconnect(event), 4001
+                return
+            self.room_group_name = "exit_viewer"
+        else:
+            try:
+                exit_camera = await ExitCamera.objects.aget(secret_key=self.scope["url_route"]["kwargs"]["secret_key"])
+            except ExitCamera.DoesNotExist:
+                await self.websocket_disconnect(event), 4001
+                return
+            self.room_group_name = "exit_camera"
+            self.camera_id = exit_camera.id
+        await self.channel_layer.group_add(
+            self.room_group_name, self.channel_name
+        )
         await self.send({"type": "websocket.accept"})
 
     async def websocket_receive(self, text_data):
@@ -219,10 +240,34 @@ class ExitConsumer(AsyncConsumer):
                         await sync_to_async(unknown_profile.save)()
         # print(unknown_encodings)
         cv2.imwrite("test2.png", frame)
+        retval, buffer = cv2.imencode('.jpg', frame)
+        jpg_as_text = base64.b64encode(buffer)
+        await self.channel_layer.group_send(
+            "exit_viewer",
+            {
+                'type': 'send.cap',
+                'image': jpg_as_text,
+                "camera_id": str(self.camera_id)
+            }
+        )
 
     
+    async def send_cap(self, event):
+        unical_id = event["camera_id"]
+        image = event["image"]
+        dict_obj = {'id': unical_id, 'image': image.decode('utf-8')}
+        await self.send({"type": "websocket.send", "text": json.dumps(dict_obj)})
+
+
     async def websocket_disconnect(self, event):
-        pass
+        try:
+            await self.channel_layer.group_discard(
+                self.room_group_name,
+                self.channel_name
+            )
+        except:
+            pass
+
 
 
 # Для голосового и т.д

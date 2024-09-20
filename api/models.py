@@ -1,6 +1,9 @@
 from django.db import models
 from django.utils import timezone
 
+import random
+import string
+
 
 class Person(models.Model):
     name = models.CharField('Имя человека', max_length=100)
@@ -87,3 +90,26 @@ class TelegramBotAdmins(models.Model):
     
     def __str__(self) -> str:
         return str(f'{self.name} {self.telegram_id}')
+
+
+class EnterCamera(models.Model):
+    name = models.CharField("Название", max_length=100)
+    secret_key = models.CharField("Секретный ключ камеры", default=''.join([random.choice(string.ascii_lowercase + string.digits) for i in range(8)]), max_length=100)
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        verbose_name = "Камера на вход"
+        verbose_name_plural = "Камеры на вход"
+    
+class ExitCamera(models.Model):
+    name = models.CharField("Название", max_length=100)
+    secret_key = models.CharField("Секретный ключ камеры", default=''.join([random.choice(string.ascii_lowercase + string.digits) for i in range(8)]), max_length=100)
+
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        verbose_name = "Камера на выход"
+        verbose_name_plural = "Камеры на выход"

@@ -7,7 +7,7 @@ import datetime
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-from api.models import Person, UnknownEnterPerson, History
+from api.models import Person, UnknownEnterPerson, History, EnterCamera, ExitCamera
 from django.db.models import Q
 
 
@@ -109,4 +109,9 @@ def history(request):
 
 @user_passes_test(can_view_history, login_url='/')
 def view_cameras(request):
-    return render(request, "cameras.html")
+    context = {
+        "enter_cameras": [camera.id for camera in EnterCamera.objects.all()],
+        "exit_cameras": [camera.id for camera in ExitCamera.objects.all()],
+        "can_history": can_view_history(request.user)
+    }
+    return render(request, "cameras.html", context=context)

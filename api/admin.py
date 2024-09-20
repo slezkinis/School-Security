@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Person, UnknownEnterPerson, History, TelegramBotAdmins, TemplatePerson
+from .models import Person, UnknownEnterPerson, History, TelegramBotAdmins, TemplatePerson, EnterCamera, ExitCamera
 
 
 @admin.register(TemplatePerson)
@@ -24,4 +24,14 @@ class HistoryAdmin(admin.ModelAdmin):
 
 @admin.register(TelegramBotAdmins)
 class TelegramBotAdminsAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(EnterCamera)
+class EnterCameraAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ExitCamera)
+class ExitCameraAdmin(admin.ModelAdmin):
     pass
