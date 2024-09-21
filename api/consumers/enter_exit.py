@@ -5,7 +5,7 @@ import os
 import numpy as np
 import cv2
 import face_recognition
-from django.core.files.base import File, ContentFile
+from django.core.files.base import File
 import datetime
 from asgiref.sync import sync_to_async
 from PIL import Image
@@ -88,6 +88,7 @@ class EnterConsumer(AsyncConsumer):
                         history = await History.objects.acreate(
                             title=f'{employee_profile.name} вошёл',
                             data_time=datetime.datetime.now(),
+                            history_type="known_enter"
                         )
                         fp_bytes = BytesIO()
                         test = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -109,6 +110,7 @@ class EnterConsumer(AsyncConsumer):
                             history = await History.objects.acreate(
                                 title=f'{student_profile.name} вошёл',
                                 data_time=datetime.datetime.now(),
+                                history_type="known_enter"
                             )
                             fp_bytes = BytesIO()
                             test = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -130,23 +132,26 @@ class EnterConsumer(AsyncConsumer):
                         unknown_profile.last_enter = datetime.datetime.now()
                         await sync_to_async(unknown_profile.save)()
                     else:
-
                         face_location = face_recognition.face_locations(frame)[index]
                         face_image = frame[face_location[0]-20:face_location[2]+20, face_location[3]-20:face_location[1]+20]
                         fp_bytes = BytesIO()
                         try:
-                            Image.fromarray(face_image).save(fp_bytes, "JPEG")
+                            # Image.fromarray(face_image).save(fp_bytes, "JPEG")
+                            test = Image.fromarray(cv2.cvtColor(face_image, cv2.COLOR_BGR2RGB))
+                            test.save(fp_bytes, "JPEG")
                         except ValueError:
                             fp_bytes.close()
                             continue
                         unknown_profile = await UnknownEnterPerson.objects.acreate(
                             last_enter=datetime.datetime.now()
                         )
-                        await sync_to_async(unknown_profile.picture.save)(f'unknown/Unknown {unknown_profile.id}.jpg', content=File(fp_bytes), save=True)
+                        content = File(fp_bytes)
+                        await sync_to_async(unknown_profile.picture.save)(f'unknown/Unknown {unknown_profile.id}.jpg', content=content, save=True)
                         fp_bytes.close()
                         history = await History.objects.acreate(
                             title=f'Неизвестный вошёл',
                             data_time=datetime.datetime.now(),
+                            history_type="unknown_enter"
                         )
                         fp_bytes = BytesIO()
                         test = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -223,6 +228,7 @@ class ExitConsumer(AsyncConsumer):
                         history = await History.objects.acreate(
                             title=f'{employee_profile.name} вышел',
                             data_time=datetime.datetime.now(),
+                            history_type="known_exit"
                         )
                         fp_bytes = BytesIO()
                         test = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -244,6 +250,7 @@ class ExitConsumer(AsyncConsumer):
                             history = await History.objects.acreate(
                                 title=f'{student_profile.name} вышел',
                                 data_time=datetime.datetime.now(),
+                                history_type="known_exit"
                             )
                             fp_bytes = BytesIO()
                             test = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -268,6 +275,7 @@ class ExitConsumer(AsyncConsumer):
                             history = await History.objects.acreate(
                                 title=f'Неизвестный вышел',
                                 data_time=datetime.datetime.now(),
+                                history_type="unknown_exit"
                             )
                             fp_bytes = BytesIO()
                             test = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))

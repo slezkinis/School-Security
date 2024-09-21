@@ -31,7 +31,6 @@ class Student(models.Model):
     def __str__(self) -> str:
         return self.name
 
-
 class Employee(models.Model):
     name = models.CharField('Имя сотрудника', max_length=100)
     picture = models.ImageField('Фото сотрудника')
@@ -55,7 +54,6 @@ class Employee(models.Model):
 
     def __str__(self) -> str:
         return self.name
-
 
 class UnknownEnterPerson(models.Model):
     picture = models.ImageField('Фото человека')
@@ -96,7 +94,16 @@ class History(models.Model):
         db_index=True
     )
     image = models.ImageField('Фото человека', upload_to='history/', blank=True)
-
+    TYPE_CHOICE = (
+        ("known_enter", "Известный вошёл"),
+        ("known_exit", "Известный вышел"),
+        ("unknown_enter", "Неизвестный вошёл"),
+        ("unknown_exit", "Неизвестный вышел"),
+        ("open_room", "Открытие комнаты"),
+        ("clear_enter", "Очистка входящих"),
+        ("another", "Другое")
+    )
+    history_type = models.CharField("Тип истории", choices=TYPE_CHOICE, max_length=100, default="another")
 
     class Meta:
         verbose_name = 'История входа/выхода'
@@ -120,7 +127,7 @@ class TelegramBotAdmins(models.Model):
 
 class EnterCamera(models.Model):
     name = models.CharField("Название", max_length=100)
-    secret_key = models.CharField("Секретный ключ камеры", default=''.join([random.choice(string.ascii_lowercase + string.digits) for i in range(8)]), max_length=100)
+    secret_key = models.CharField("Секретный ключ камеры", max_length=100)
 
     def __str__(self) -> str:
         return self.name
@@ -131,7 +138,7 @@ class EnterCamera(models.Model):
     
 class ExitCamera(models.Model):
     name = models.CharField("Название", max_length=100)
-    secret_key = models.CharField("Секретный ключ камеры", default=''.join([random.choice(string.ascii_lowercase + string.digits) for i in range(8)]), max_length=100)
+    secret_key = models.CharField("Секретный ключ камеры", max_length=100)
 
     def __str__(self) -> str:
         return self.name
@@ -139,3 +146,20 @@ class ExitCamera(models.Model):
     class Meta:
         verbose_name = "Камера на выход"
         verbose_name_plural = "Камеры на выход"
+
+
+class ClosedRoom(models.Model):
+    name = models.CharField("Название", max_length=100)
+    secret_key = models.CharField("Секретный ключ камеры", max_length=100)
+    access_level = models.IntegerField("Мин. уровень доступа", default=1, validators=[MinValueValidator(1), MaxValueValidator(5)])
+    last_enter = models.DateTimeField(
+        'Последний вход в комнату',
+        default=timezone.now,
+        db_index=True
+    )
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        verbose_name = "Комната с замком"
+        verbose_name_plural = "Комнаты с замком"

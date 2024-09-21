@@ -9,7 +9,60 @@
   <meta http-equiv="refresh" content="15">
   <hr/>
   <div class="container">
-   <table class="table table-responsive">
+    <form style="float: right;" action="">
+      <label for="type">Выберите тип:</label>
+      <select id="type" name="type">
+        {% if type_history == "all" %}
+          <option value="all" selected>Все</option>
+        {% else %}
+          <option value="all">Все</option>
+        {% endif %}
+        {% if type_history == "known_enter" %}
+          <option value="known_enter" selected>Известный вошёл</option>
+        {% else %}
+          <option value="known_enter">Известный вошёл</option>
+        {% endif %}
+        {% if type_history == "known_exit" %}
+          <option value="known_exit" selected>Известный вышел</option>
+        {% else %}
+          <option value="known_exit">Известный вышел</option>
+        {% endif %}
+        {% if type_history == "unknown_enter" %}
+          <option value="unknown_enter" selected>Неизвестный вошёл</option>
+        {% else %}
+          <option value="unknown_enter">Неизвестный вошёл</option>
+        {% endif %}
+        {% if type_history == "unknown_exit" %}
+          <option value="unknown_exit" selected>Неизвестный вышел</option>
+        {% else %}
+          <option value="unknown_exit">Неизвестный вышел</option>
+        {% endif %}
+        {% if type_history == "open_room" %}
+          <option value="open_room" selected>Открытие комнаты</option>
+        {% else %}
+          <option value="open_room">Открытие комнаты</option>
+        {% endif %}
+        {% if type_history == "clear_enter" %}
+          <option value="clear_enter" selected>Очистка входящих</option>
+        {% else %}
+          <option value="clear_enter">Очистка входящих</option>
+        {% endif %}
+        {% if type_history == "another" %}
+          <option value="another" selected>Другое</option>
+        {% else %}
+          <option value="another">Другое</option>
+        {% endif %}
+        <option value="known_enter">Известный вошёл</option>
+        <option value="known_exit">Известный вышел</option>
+        <option value="unknown_enter">Неизвестный вошёл</option>
+        <option value="unknown_exit">Неизвестный вышел</option>
+        <option value="open_room">Открытие комнаты</option>
+        <option value="clear_enter">Очистка входящих</option>
+        <option value="another">Другое</option>
+      </select>
+      <button type="submit">Искать</button>
+    </form>
+    <table class="table table-responsive">
     <tr>
       <th>Фото человека</th>
       <th>Событие</th>
@@ -28,12 +81,12 @@
    <hr>
    {% if previous_page != 0 or next_page != 0%}
       {% if previous_page != 0 %}
-        <button type="button" class="btn btn-primary" onclick="window.location.href='?page={{previous_page}}'">&laquo; Предыдущая страница</button>
+        <button type="button" class="btn btn-primary" onclick="window.location.href='?page={{previous_page}}&type={{type_history}}'">&laquo; Предыдущая страница</button>
       {% else %}
         <button type="button" disabled class="btn btn-primary">&laquo; Предыдущая страница</button>
       {% endif %}
       {% if next_page != 0 %}
-        <button type="button" class="btn btn-success" onclick="window.location.href='?page={{next_page}}'">Следующая страница &raquo;</button>
+        <button type="button" class="btn btn-success" onclick="window.location.href='?page={{next_page}}&type={{type_history}}'">Следующая страница &raquo;</button>
       {% else %}
         <button type="button" disabled class="btn btn-success">Следующая страница &raquo;</button>
       {% endif %}

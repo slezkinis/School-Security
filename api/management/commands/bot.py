@@ -61,12 +61,14 @@ def bot1():
         for person in TelegramBotAdmins.objects.all():
             team_users.append(person.telegram_id)
         if message.chat.id in team_users:
-            Person.objects.filter(is_enter=True).update(is_enter=False, last_exit=datetime.datetime.now())
+            Employee.objects.filter(is_enter=True).update(is_enter=False, last_exit=datetime.datetime.now())
+            Student.objects.filter(is_enter=True).update(is_enter=False, last_exit=datetime.datetime.now())
             for i in UnknownEnterPerson.objects.all():
                 i.delete()
             need = History.objects.create(
                 title=f'{TelegramBotAdmins.objects.get(telegram_id=message.chat.id).name}({message.chat.id}) очистил список входящих',
-                data_time=datetime.datetime.now()
+                data_time=datetime.datetime.now(),
+                history_type="clear_enter"
             )
             bot.reply_to(message, "Список входящих людей теперь пуст!")
         else:
@@ -162,7 +164,9 @@ def bot1():
         else:
             enter = ''
             enter_known = []
-            for i in Person.objects.filter(is_enter=True):
+            for i in Employee.objects.filter(is_enter=True):
+                enter_known.append(i.name)
+            for i in Student.objects.filter(is_enter=True):
                 enter_known.append(i.name)
             enter_unknown = UnknownEnterPerson.objects.all()
             if len(enter_known) != 0:

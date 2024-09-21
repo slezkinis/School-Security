@@ -95,6 +95,11 @@ def index(request):
 @user_passes_test(is_auth, login_url='main:login')
 @user_passes_test(can_view_history, login_url='/')
 def history(request):
+    type_history = "all"
+    try:
+        type_history = request.GET['type']
+    except:
+        pass
     page = 1
     next_page = 0
     try:
@@ -102,7 +107,10 @@ def history(request):
     except:
         pass
     people_history = []
-    histories = History.objects.all().order_by('-data_time')
+    if type_history != "all":
+        histories = History.objects.filter(history_type=type_history).order_by('-data_time')
+    else:
+        histories = History.objects.all().order_by('-data_time')
     if len(histories) > 10:
         next_page = page + 1
     if len(histories[(page - 1) * 10:]) <= 10:
@@ -123,7 +131,7 @@ def history(request):
         previous_page = 0
     else:
         previous_page = page - 1
-    return render(request, 'history.html', {'people': people_history, 'next_page': next_page, 'previous_page': previous_page, "can_history": can_view_history(request.user)})
+    return render(request, 'history.html', {'people': people_history, 'next_page': next_page, 'previous_page': previous_page, "can_history": can_view_history(request.user), "type_history": type_history})
 
 
 @user_passes_test(is_auth, login_url='main:login')
