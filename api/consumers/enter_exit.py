@@ -42,6 +42,8 @@ class EnterConsumer(AsyncConsumer):
         npdata = np.fromstring(data,dtype=np.uint8)
         frame = cv2.imdecode(npdata,1)
         unknown_encodings = face_recognition.face_encodings(frame)
+        all_faces = face_recognition.face_locations(frame)
+        # all_faces = []
         for index, enc in enumerate(unknown_encodings):
             temp_encodings = []
             async for temp in await sync_to_async(TemplatePerson.objects.all)():
@@ -139,7 +141,7 @@ class EnterConsumer(AsyncConsumer):
                             # Image.fromarray(face_image).save(fp_bytes, "JPEG")
                             test = Image.fromarray(cv2.cvtColor(face_image, cv2.COLOR_BGR2RGB))
                             test.save(fp_bytes, "JPEG")
-                        except ValueError:
+                        except:
                             fp_bytes.close()
                             continue
                         unknown_profile = await UnknownEnterPerson.objects.acreate(
@@ -162,6 +164,8 @@ class EnterConsumer(AsyncConsumer):
                         await sync_to_async(history.save)()
                         fp_bytes.close()
         cv2.imwrite("test.png", frame)
+        for (top, right, bottom, left) in all_faces:
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
         retval, buffer = cv2.imencode('.jpg', frame)
         jpg_as_text = base64.b64encode(buffer)
         await self.channel_layer.group_send(
@@ -215,6 +219,7 @@ class ExitConsumer(AsyncConsumer):
         npdata = np.fromstring(data,dtype=np.uint8)
         frame = cv2.imdecode(npdata,1)
         unknown_encodings = face_recognition.face_encodings(frame)
+        all_faces = face_recognition.face_locations(frame)
         for index, enc in enumerate(unknown_encodings):
             employee_encodings = [face_recognition.face_encodings(face_recognition.load_image_file(p.picture.path))[0] async for p in await sync_to_async(Employee.objects.all)()]
             compare_res = face_recognition.compare_faces(employee_encodings, enc)
@@ -290,6 +295,8 @@ class ExitConsumer(AsyncConsumer):
                             await sync_to_async(unknown_profile.save)()
         # print(unknown_encodings)
         cv2.imwrite("test2.png", frame)
+        for (top, right, bottom, left) in all_faces:
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
         retval, buffer = cv2.imencode('.jpg', frame)
         jpg_as_text = base64.b64encode(buffer)
         await self.channel_layer.group_send(

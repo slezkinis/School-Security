@@ -171,7 +171,7 @@ def bot1():
             enter_unknown = UnknownEnterPerson.objects.all()
             if len(enter_known) != 0:
                 for person in enter_known[:len(enter_known) - 1]:
-                    enter += (person.name + ', ')
+                    enter += (person + ', ')
                 enter += enter_known[len(enter_known) - 1]
             else:
                 enter = ''

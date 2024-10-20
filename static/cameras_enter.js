@@ -29,7 +29,7 @@ function check_time() {
         let my_id = item.id.replace("enter_", "");
         if (enter_cameras_id.indexOf(my_id) != -1) {
             let last_time = enter_cameras_time[enter_cameras_id.indexOf(my_id)]
-            if (Data.getMinutes() - last_time[0] > 0 || Data.getSeconds() - last_time[1] > 1) {
+            if (Data.getMinutes() - last_time[0] > 0 || Data.getSeconds() - last_time[1] > 6) {
                 let img_camera = item.querySelector("img")
                 img_camera.src = "/media/not_found.png"
             }
