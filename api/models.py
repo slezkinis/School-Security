@@ -34,6 +34,7 @@ class Student(models.Model):
 class Employee(models.Model):
     name = models.CharField('Имя сотрудника', max_length=100)
     picture = models.ImageField('Фото сотрудника')
+    voice_profile = models.BinaryField(blank=True, null=True)
     is_enter = models.BooleanField('Внутри ли сотрудник')
     access_level = models.IntegerField("Уровень доступа", default=1, validators=[MinValueValidator(1), MaxValueValidator(5)])
     last_enter = models.DateTimeField(
@@ -127,7 +128,7 @@ class TelegramBotAdmins(models.Model):
 
 class EnterCamera(models.Model):
     name = models.CharField("Название", max_length=100)
-    secret_key = models.CharField("Секретный ключ камеры", max_length=100)
+    secret_key = models.CharField("Секретный ключ камеры", max_length=100, unique=True)
 
     def __str__(self) -> str:
         return self.name
@@ -138,7 +139,7 @@ class EnterCamera(models.Model):
     
 class ExitCamera(models.Model):
     name = models.CharField("Название", max_length=100)
-    secret_key = models.CharField("Секретный ключ камеры", max_length=100)
+    secret_key = models.CharField("Секретный ключ камеры", max_length=100, unique=True)
 
     def __str__(self) -> str:
         return self.name
@@ -150,7 +151,7 @@ class ExitCamera(models.Model):
 
 class ClosedRoom(models.Model):
     name = models.CharField("Название", max_length=100)
-    secret_key = models.CharField("Секретный ключ камеры", max_length=100)
+    secret_key = models.CharField("Секретный ключ камеры", max_length=100, unique=True)
     access_level = models.IntegerField("Мин. уровень доступа", default=1, validators=[MinValueValidator(1), MaxValueValidator(5)])
     last_enter = models.DateTimeField(
         'Последний вход в комнату',
@@ -163,3 +164,36 @@ class ClosedRoom(models.Model):
     class Meta:
         verbose_name = "Комната с замком"
         verbose_name_plural = "Комнаты с замком"
+
+
+class Room(models.Model):
+    name = models.CharField("Название", max_length=100)
+    
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        verbose_name = "Комната"
+        verbose_name_plural = "Комнаты"
+
+class RoomCamera(models.Model):
+    secret_key = models.CharField("Секретный ключ камеры", max_length=100, unique=True)
+    to_room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='cameras', verbose_name="Комната")
+
+    def __str__(self) -> str:
+        return self.to_room.name + str(self.id)
+
+    class Meta:
+        verbose_name = "Камера в комнате"
+        verbose_name_plural = "Камеры в комнатах"
+
+class RoomAssistant(models.Model):
+    secret_key = models.CharField("Секретный ключ устройства", max_length=100, unique=True)
+    to_room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='assistants', verbose_name="Комната")
+
+    def __str__(self) -> str:
+        return self.to_room.name + str(self.id)
+
+    class Meta:
+        verbose_name = "Микрофон в комнате"
+        verbose_name_plural = "Микрофоны в комнатах"

@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,29 +24,44 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--9a2^cn@j!!n^$sgsjur$5gqsdpo7=3bi%6588i84o$xa(-8&o'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.environ["DEBUG"])
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
 
 # CHANNEL_LAYERS = {
 #     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [("127.0.0.1", 6379)],
-#         },
-#     },
+#         "BACKEND": "channels.layers.InMemoryChannelLayer"
+#     }
 # }
+redis_host = os.environ["REDIS_HOST"]
+redis_port = int(os.environ["REDIS_PORT"])
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(redis_host, redis_port)],
+        },
+    },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': f'redis://1{redis_host}:{str(redis_port)}/',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
 ALLOWED_HOSTS = ['*']
 
-TOKEN = '5223025765:AAENLkIY_0pgBZsv5dad8XCr4dba81OZr_4'
-TELEGRAM_KEY = '1234'
+TOKEN = os.getenv("TG_TOKEN")
+TELEGRAM_KEY = os.getenv("TELEGRAM_KEY")
+PVEAGLE_KEY = os.getenv("PVEAGLE_KEY")
+
 USE_TZ = True
 INTERNAL_IPS = []
 

@@ -18,3 +18,11 @@ opencv-python
 channels==3.0.5
 imutils==0.5.4
 websocket-client==1.8.0
+python-dotenv
+
+pyttsx3
+websockets
+pyaudio
+vosk
+pveagle
+pvrecorder

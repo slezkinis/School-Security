@@ -59,3 +59,6 @@ class ClosedRoomConsumer(AsyncConsumer):
                 break
         else:
             await self.send({"type": "websocket.send", "text": json.dumps({"is_open": False})})
+
+    async def websocket_disconnect(self, event):
+        return

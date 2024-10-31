@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import Student, Employee, UnknownEnterPerson, History, TelegramBotAdmins, TemplatePerson, EnterCamera, ExitCamera, ClosedRoom
+from .models import *
+
+
+class RoomCameraInline(admin.TabularInline):
+    model=RoomCamera
+
+class RoomAssistantInline(admin.TabularInline):
+    model=RoomAssistant
 
 
 @admin.register(TemplatePerson)
@@ -15,6 +22,11 @@ class StudentAdmin(admin.ModelAdmin):
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
     list_display=['name', 'is_enter']
+    readonly_fields = ['id']
+
+    def id(self, obj):
+        return obj.id
+
 
 @admin.register(UnknownEnterPerson)
 class UnknownPersonAdmin(admin.ModelAdmin):
@@ -43,3 +55,7 @@ class ExitCameraAdmin(admin.ModelAdmin):
 @admin.register(ClosedRoom)
 class ClosedRoomAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(Room)
+class RoomAdmin(admin.ModelAdmin):
+    inlines = [RoomCameraInline, RoomAssistantInline]
