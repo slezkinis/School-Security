@@ -13,7 +13,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'school_security.settings')
 from api.consumers.enter_exit import *
 from api.consumers.closed_room import ClosedRoomConsumer
 from api.consumers.room.room_camera import RoomCameraConsumer
-from api.consumers.room.room_assistant import RoomAssistantConsumer
+# from api.consumers.room.room_assistant import RoomAssistantConsumer
 
 django_asgi_app = get_asgi_application()
 
