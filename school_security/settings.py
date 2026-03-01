@@ -50,7 +50,7 @@ CHANNEL_LAYERS = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f'redis://1{redis_host}:{str(redis_port)}/',
+        'LOCATION': f'redis://{redis_host}:{str(redis_port)}/',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -79,7 +79,8 @@ INSTALLED_APPS = [
     'main',
     'rest_framework',
     'api',
-    'debug_toolbar'
+    'debug_toolbar',
+    "django_extensions"
 ]
 
 

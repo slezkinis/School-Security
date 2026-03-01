@@ -1,48 +1,65 @@
-<!doctype html>{% load static %}
-<html lang="ru">
+<!doctype html>
+{% load static %}
+<html lang="ru" data-theme="light">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <!-- <link rel="icon" href="{% static 'icon.png' %}" type="image/x-icon"> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>{% block title %}{% endblock %}</title>
 
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Иконки -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Тема -->
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
 </head>
 <body>
 
-  {% block header_nav %}
-    <nav class="navbar navbar-inverse">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="{% url 'main:index' %}">CAPSIS Admin Panel</a>
-        </div>
-        <ul class="nav navbar-nav">
-          <li>
-            <a href="{% url 'main:index' %}">Главная</a>
-          </li>
-          {% if can_history %}
-            <li>
-              <a href="{% url 'main:history' %}">История входов/выходов</a>
-            </li>
-            <li>
-              <a href="{% url 'main:cameras' %}">Камеры</a>
-            </li>
-          {% endif %}
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li>
-            <a href="{% url 'main:logout' %}"><span class="glyphicon glyphicon-log-out"></span> Выйти</a>
-          </li>
-        </ul>
+{% block header_nav %}
+<nav class="navbar navbar-expand-lg shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="{% url 'main:index' %}">
+      CAPSIS
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'main:index' %}">Главная</a>
+        </li>
+
+        {% if can_history %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'main:history' %}">История</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'main:cameras' %}">Камеры</a>
+        </li>
+        {% endif %}
+      </ul>
+
+      <div class="d-flex gap-2 align-items-center">
+        <a href="{% url 'main:logout' %}" class="btn btn-sm btn-outline-danger">
+          Выйти
+        </a>
       </div>
-    </nav>
-  {% endblock header_nav %}
+    </div>
+  </div>
+</nav>
+{% endblock %}
 
+<main class="container-fluid py-4">
   {% block content %}{% endblock %}
+</main>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

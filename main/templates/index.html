@@ -3,78 +3,125 @@
 {% block title %}Общее состояние{% endblock %}
 
 {% block content %}
-{% if status == "security" %}
-  <center>
-    <h2>Список вошедших</h2>
-  </center>
-  <meta http-equiv="refresh" content="60">
-  <hr/>
-  <center>
-    <h3>Неизвестные</h3>
-  </center>
-  <div class="container">
-    <table class="table table-responsive">
-      <tr>
-        <th>Фото человека</th>
-        <th>Имя</th>
-        <th>Время входа</th>
-      </tr>
 
-      {% for person in unknown_people %}
-        <tr>
-          <td>
-            <img src="{{person.photo}}" class="card-img" alt="Фото книги" height="100px">
-          </td>
-          <td>{{person.name}}</td>
-          <td>{{person.date}}</td>
-        </tr>
-      {% endfor %}
-    </table>
-      <hr/>
-      <center>
-        <h3>Известные</h3>
-      </center>
-    <table class="table table-responsive">
-      <tr>
-        <th>Фото человека</th>
-        <th>Имя</th>
-        <th>Время входа</th>
-      </tr>
+<meta http-equiv="refresh" content="60">
 
-      {% for person in known_people %}
-        <tr>
-          <td>
-            <img src="{{person.photo}}" class="card-img" alt="Фото человека" height="100px">
-          </td>
-          <td>{{person.name}}</td>
-          <td>{{person.date}}</td>
-        </tr>
-      {% endfor %}
-    </table>
+<h2 class="text-center mb-4">Текущие посетители</h2>
+
+<div class="row g-4">
+
+  <!-- НЕИЗВЕСТНЫЕ -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header text-center fw-bold">
+        🚨 Неизвестные
+      </div>
+
+      <div class="card-body">
+        {% if unknown_people %}
+        <div class="row g-3">
+          {% for person in unknown_people %}
+          <div class="col-sm-6 col-xl-4">
+            <div class="card h-100 person-card clickable"
+                 data-photo="{{ person.photo }}"
+                 data-name="Неизвестный"
+                 data-date="{{ person.date }}"
+                 data-known="false">
+              <img src="{{ person.photo }}" class="person-photo" alt="Фото">
+              <div class="card-body text-center">
+                <div class="fw-semibold">Неизвестный</div>
+                <div class="text-muted small">{{ person.date }}</div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+          <div class="text-muted text-center">Нет</div>
+        {% endif %}
+      </div>
+    </div>
   </div>
-  {% elif status == "eat" %}
-  <center>
-    <h2>Должны прийти в столовую</h2>
-    <h5>Общее количество: {{count}}</h5>
-  </center>
-  <meta http-equiv="refresh" content="10">
-  <hr/>
-  <div class="container">
-    <table class="table table-responsive">
-      <tr>
-        <th>Фото человека</th>
-        <th>Имя</th>
-      </tr>
 
-      {% for person in people %}
-        <tr>
-          <td>
-            <img src="{{person.photo}}" class="card-img" alt="Фото человека" height="100px">
-          </td>
-          <td>{{person.name}}</td>
-        </tr>
-      {% endfor %}
-    </table>
+  <!-- ИЗВЕСТНЫЕ -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header text-center fw-bold">
+        ✅ Известные
+      </div>
+
+      <div class="card-body">
+        {% if known_people %}
+        <div class="row g-3">
+          {% for person in known_people %}
+          <div class="col-sm-6 col-xl-4">
+            <div class="card h-100 person-card clickable"
+                 data-photo="{{ person.photo }}"
+                 data-name="{{ person.name }}"
+                 data-date="{{ person.date }}"
+                 data-known="true"
+                 data-url="{{ person.url }}">
+              <img src="{{ person.photo }}" class="person-photo" alt="Фото">
+              <div class="card-body text-center">
+                <div class="fw-semibold">{{ person.name }}</div>
+                <div class="text-muted small">{{ person.date }}</div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+          <div class="text-muted text-center">Нет</div>
+        {% endif %}
+      </div>
+    </div>
   </div>
-  {% endif %}
+
+</div>
+
+<!-- MODAL -->
+<div class="modal fade" id="personModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="personName"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="personPhoto" class="modal-photo mb-3">
+        <div class="text-muted" id="personDate"></div>
+        <a id="gotoUserLink" class="btn btn-link mt-3 d-none" target="_blank">Перейти к пользователю</a>
+      </div>      
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll(".clickable").forEach(card => {
+  card.addEventListener("click", () => {
+    const photo = card.dataset.photo;
+    const name = card.dataset.name;
+    const date = card.dataset.date || "";
+    const known = card.dataset.known === "true";
+    const userUrl = card.dataset.url;
+
+    document.getElementById("personPhoto").src = photo;
+    document.getElementById("personName").innerText = name;
+    document.getElementById("personDate").innerText = date;
+
+    const gotoLink = document.getElementById("gotoUserLink");
+    if (known && userUrl) {
+      gotoLink.classList.remove("d-none");
+      gotoLink.href = userUrl;  // ссылка на пользователя по ID
+    } else {
+      gotoLink.classList.add("d-none");
+      gotoLink.href = "#";
+    }
+
+    new bootstrap.Modal(document.getElementById("personModal")).show();
+  });
+});
+
+</script>
+
 {% endblock %}

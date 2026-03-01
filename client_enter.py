@@ -8,9 +8,9 @@ import websocket
 
 BUFF_SIZE = 65536
 ws = websocket.WebSocket()
-ws.connect("ws://127.0.0.1:8000/enter/2")
+ws.connect("ws://172.20.10.2:8000/enter/1")
 fps,st,frames_to_count,cnt = (0,0,20,0)
-vid = cv2.VideoCapture(0) #  replace 'rocket.mp4' with 0 for webcam
+vid = cv2.VideoCapture(1) #  replace 'rocket.mp4' with 0 for webcam
 while True:
 	while(vid.isOpened()):
 		WIDTH=400

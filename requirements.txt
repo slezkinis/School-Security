@@ -26,3 +26,4 @@ pyaudio
 vosk
 pveagle
 pvrecorder
+fuzzywuzzy

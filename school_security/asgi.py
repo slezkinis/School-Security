@@ -23,10 +23,11 @@ application = ProtocolTypeRouter({
         URLRouter([
             path('enter/<str:secret_key>', EnterConsumer.as_asgi()),
             path('exit/<str:secret_key>', ExitConsumer.as_asgi()),
-            path('closed_room/<str:secret_key>', ClosedRoomConsumer.as_asgi()),
-
-            path("room/camera/<str:secret_key>", RoomCameraConsumer.as_asgi()),
-            path("room/assistant/<str:secret_key>", RoomAssistantConsumer.as_asgi())
+            path('closed_room/<str:secret_key>', ClosedRoomConsumer.as_asgi())
         ])
     )
 })
+
+
+            # path("room/camera/<str:secret_key>", RoomCameraConsumer.as_asgi()),
+            # path("room/assistant/<str:secret_key>", RoomAssistantConsumer.as_asgi())

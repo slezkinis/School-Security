@@ -1,0 +1,147 @@
+/* ================== СВЕТЛАЯ ТЕМА ================== */
+:root {
+    --bg: #f4f6f9;
+    --text: #1f2933;
+    --card: #ffffff;
+    --border: #dee2e6;
+    --nav-bg: #0d6efd;
+    --nav-text: #ffffff;
+  }
+  
+  /* ================== ОБЩЕЕ ================== */
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .navbar {
+    background-color: var(--nav-bg) !important;
+  }
+  
+  .navbar .nav-link,
+  .navbar-brand {
+    color: var(--nav-text) !important;
+  }
+  
+  .navbar .nav-link:hover {
+    opacity: 0.8;
+  }
+  
+  .card,
+  .table,
+  .group {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  }
+  
+  .table {
+    color: var(--text);
+  }
+  
+  .table th {
+    background-color: rgba(0,0,0,0.05);
+  }
+  
+  img {
+    border-radius: 8px;
+    object-fit: cover;
+  }
+  
+  button {
+    transition: all 0.2s ease;
+  }
+  
+  .group {
+    padding: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  }
+  
+  /* ===== LOGIN ===== */
+  .login-card {
+    max-width: 420px;
+    width: 100%;
+    border-radius: 16px;
+  }
+  
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 36px;
+  }
+  
+  /* ===== PERSON CARDS ===== */
+  .person-card {
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .person-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  
+  .person-photo {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    background-color: #000;
+  }
+  
+  @media (max-width: 576px) {
+    .person-photo {
+      height: 140px;
+    }
+  }
+  
+  /* ===== HISTORY ===== */
+  .history-photo {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 10px;
+    background-color: #000;
+  }
+  
+  .table thead th {
+    white-space: nowrap;
+  }
+  
+  .table tbody tr:hover {
+    background-color: rgba(0,0,0,0.03);
+  }
+  
+  /* ===== HISTORY CLICK ===== */
+  .history-row {
+    cursor: pointer;
+  }
+  
+  .history-row:hover {
+    background-color: rgba(0,0,0,0.04);
+  }
+  
+  /* ===== CLICKABLE CARDS ===== */
+  .clickable {
+    cursor: pointer;
+  }
+  
+  .clickable:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.15);
+  }
+  
+  /* ===== MODAL PHOTO ===== */
+  .modal-photo {
+    width: 420px;
+    height: 420px;
+    max-width: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 16px;
+    background-color: #000;
+    transition: all 0.3s ease;
+  }
+  

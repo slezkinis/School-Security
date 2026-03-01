@@ -3,6 +3,7 @@ from api.models import Employee
 import pveagle
 from school_security.settings import PVEAGLE_KEY
 from pvrecorder import PvRecorder
+import time
 
 
 
@@ -33,7 +34,8 @@ class Command(BaseCommand):
         enroll_recorder.start()
 
         enroll_percentage = 0.0
-        while enroll_percentage < 100.0:
+        start = time.time()
+        while enroll_percentage < 100.0 or time.time() - start < 20:
             audio_frame = enroll_recorder.read()
             enroll_percentage, feedback = eagle_profiler.enroll(audio_frame)
 

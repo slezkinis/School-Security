@@ -1,39 +1,58 @@
-let exit_div = document.querySelector(".exit")
-let exit_cameras_id = [];
-let exit_cameras_time = [];
-const exit_socket = new WebSocket(
-    'ws://' +
-    window.location.host +
-    '/exit/-1'
-)
-exit_socket.onmessage = function (e) {
-    const data = JSON.parse(e.data);
-    var idx = exit_cameras_id.indexOf(data["id"])
-    if (idx == -1) {
-        exit_cameras_id.push(data["id"])
-        Data = new Date();
-        exit_cameras_time.push([Data.getMinutes(), Data.getSeconds()])
-        document.querySelector(`#exit_${data["id"]}`).querySelector("img").src = "data:image/jpeg;base64, " + data["image"]
-        console.log("ADDED")
-    } else {
-        Data = new Date();
-        exit_cameras_time[exit_cameras_id.indexOf(data["id"])] = [Data.getMinutes(), Data.getSeconds()]
-        document.querySelector(`#exit_${data["id"]}`).querySelector("img").src = "data:image/jpeg;base64, " + data["image"]
-    }
-    console.log(exit_cameras_id)
-}
+document.addEventListener("DOMContentLoaded", () => {
+    // находим блок .group с заголовком "Выход"
+    const exit_group = Array.from(document.querySelectorAll(".group")).find(g => {
+        const h4 = g.querySelector("h4");
+        return h4 && h4.textContent.trim() === "Выход";
+    });
 
-function check_time() {
-    Data = new Date();
-    exit_div.querySelectorAll(".video-item").forEach(item => {
-        let my_id = item.id.replace("exit_", "");
-        if (exit_cameras_id.indexOf(my_id) != -1) {
-            let last_time = exit_cameras_time[exit_cameras_id.indexOf(my_id)]
-            if (Data.getMinutes() - last_time[0] > 0 || Data.getSeconds() - last_time[1] > 6) {
-                let img_camera = item.querySelector("img")
-                img_camera.src = "/media/not_found.png"
+    if (!exit_group) return; // если блока нет — выходим
+
+    const exit_imgs = exit_group.querySelectorAll(".row img");
+    const exit_cameras_id = [];
+    const exit_cameras_time = [];
+
+    const exit_socket = new WebSocket('ws://' + window.location.host + '/exit/-1');
+
+    exit_socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        let idx = exit_cameras_id.indexOf(data.id);
+
+        // если камеры ещё нет в массиве
+        if (idx === -1) {
+            exit_cameras_id.push(data.id);
+            const now = new Date();
+            exit_cameras_time.push([now.getMinutes(), now.getSeconds()]);
+
+            // вставляем изображение в первый пустой img
+            const img_elem = exit_imgs[exit_cameras_id.length - 1];
+            if (img_elem) {
+                img_elem.src = "data:image/jpeg;base64," + data.image;
+            }
+            console.log("ADDED", data.id);
+        } else {
+            const now = new Date();
+            exit_cameras_time[idx] = [now.getMinutes(), now.getSeconds()];
+
+            const img_elem = exit_imgs[idx];
+            if (img_elem) {
+                img_elem.src = "data:image/jpeg;base64," + data.image;
             }
         }
-})
-}
-setInterval(check_time, 10)
+
+        console.log(exit_cameras_id);
+    };
+
+    // проверка времени для замены на "not_found"
+    setInterval(() => {
+        const now = new Date();
+        exit_imgs.forEach((img, i) => {
+            const cam_id = exit_cameras_id[i];
+            const last_time = exit_cameras_time[i];
+            if (!cam_id || !last_time) return;
+
+            if (now.getMinutes() - last_time[0] > 0 || now.getSeconds() - last_time[1] > 6) {
+                img.src = "/media/not_found.png";
+            }
+        });
+    }, 1000);
+});

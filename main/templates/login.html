@@ -4,31 +4,45 @@
 
 {% block title %}Авторизация{% endblock %}
 
-
 {% block content %}
-  <div class="container text-center">
-    <h2 style="margin-top: 60px;">Авторизация</h2>
+<div class="d-flex align-items-center justify-content-center min-vh-100">
+  <div class="card shadow-lg p-4" style="max-width: 420px; width: 100%;">
+    
+    <div class="text-center mb-4">
+      <h3 class="fw-bold mb-1">CAPSIS</h3>
+      <p class="text-muted mb-0">Вход в систему</p>
+    </div>
 
-    <hr/>
+    {% if ivalid %}
+      <div class="alert alert-danger text-center" role="alert">
+        Неверный логин или пароль
+      </div>
+    {% endif %}
 
-    <div class="row">
-      <div class="col-sm-offset-4 col-sm-4">
-        <form method="post">
-          {% csrf_token %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}"/>
 
-          {{ form.non_field_errors }}
+      {{ form.non_field_errors }}
 
-          {% if ivalid %}
-            <div class="alert alert-danger" role="alert">Неверный логин / пароль.</div>
-          {% endif %}
-
-          <input type="hidden" name="next" value="{{ request.GET.next }}"/>
-
-          {{form.as_p}}
-          <button class="btn btn-primary" type="submit">Войти</button>
-        </form>
+      <div class="mb-3">
+        {{ form.username.label_tag }}
+        {{ form.username }}
       </div>
 
+      <div class="mb-3">
+        {{ form.password.label_tag }}
+        {{ form.password }}
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
+        Войти
+      </button>
+    </form>
+
+    <div class="text-center mt-4 text-muted small">
+      CAPSIS
     </div>
   </div>
+</div>
 {% endblock %}

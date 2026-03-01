@@ -9,6 +9,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from api.models import Student, Employee, UnknownEnterPerson, History, EnterCamera, ExitCamera
 from django.db.models import Q
+from django.contrib.auth import logout
 
 
 class Login(forms.Form):
@@ -55,8 +56,10 @@ class LoginView(View):
         })
 
 
-class LogoutView(auth_views.LogoutView):
-    next_page = reverse_lazy('main:login')
+def logout_view(request):
+    logout(request)
+    return redirect("/")
+
 
 def is_auth(user):
     return user.is_authenticated
@@ -71,25 +74,21 @@ def can_view_history(user):
 @user_passes_test(is_auth, login_url='main:login')
 @user_passes_test(is_manager, login_url='main:login')
 def index(request):
-    if request.user.groups.filter(name="Столовая").exists():
-        people = []
-        for person in Student.objects.filter(Q(is_food_conected=True) & Q(last_eat__lt=datetime.date.today()) & Q(is_enter=True)):
-            people.append(
-                {'name': person.name, 'photo': request.build_absolute_uri(person.picture.url)}
-            )
-        return render(request, 'index.html', {'people': people, "can_history": False, "status": "eat", "count": len(Student.objects.filter(Q(is_food_conected=True) & Q(last_eat__lt=datetime.date.today()) & Q(is_enter=True)))})    
-    else:
-        unknown_people = []
-        known_people = []
-        for person in UnknownEnterPerson.objects.all():
-            unknown_people.append(
-                {'name': 'Неизвестный', 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
-            )
-        for person in (list(Employee.objects.filter(is_enter=True).order_by('-last_enter')) + list(Student.objects.filter(is_enter=True).order_by('-last_enter'))):
-            known_people.append(
-                {'name': person.name, 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
-            )
-        return render(request, 'index.html', {'unknown_people': unknown_people, 'known_people': known_people, "can_history": True, "status": "security"})     
+    unknown_people = []
+    known_people = []
+    for person in UnknownEnterPerson.objects.all():
+        unknown_people.append(
+            {'name': 'Неизвестный', 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url)}
+        )
+    for person in (list(Employee.objects.filter(is_enter=True).order_by('-last_enter'))):
+        known_people.append(
+            {'name': person.name, 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url), "url": f"/admin/api/employee/{person.id}"}
+        )
+    for person in list(Student.objects.filter(is_enter=True).order_by('-last_enter')):
+        known_people.append(
+            {'name': person.name, 'date': person.last_enter, 'photo': request.build_absolute_uri(person.picture.url), "url": f"/admin/api/student/{person.id}"}
+        )
+    return render(request, 'index.html', {'unknown_people': unknown_people, 'known_people': known_people, "can_history": True, "status": "security"})     
 
 
 @user_passes_test(is_auth, login_url='main:login')

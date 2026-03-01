@@ -3,86 +3,111 @@
 {% block title %}История проходов{% endblock %}
 
 {% block content %}
-  <center>
-    <h2>История проходов</h2>
-  </center>
-  <meta http-equiv="refresh" content="15">
-  <hr/>
-  <div class="container">
-    <form style="float: right;" action="">
-      <label for="type">Выберите тип:</label>
-      <select id="type" name="type">
-        {% if type_history == "all" %}
-          <option value="all" selected>Все</option>
-        {% else %}
-          <option value="all">Все</option>
-        {% endif %}
-        {% if type_history == "known_enter" %}
-          <option value="known_enter" selected>Известный вошёл</option>
-        {% else %}
-          <option value="known_enter">Известный вошёл</option>
-        {% endif %}
-        {% if type_history == "known_exit" %}
-          <option value="known_exit" selected>Известный вышел</option>
-        {% else %}
-          <option value="known_exit">Известный вышел</option>
-        {% endif %}
-        {% if type_history == "unknown_enter" %}
-          <option value="unknown_enter" selected>Неизвестный вошёл</option>
-        {% else %}
-          <option value="unknown_enter">Неизвестный вошёл</option>
-        {% endif %}
-        {% if type_history == "unknown_exit" %}
-          <option value="unknown_exit" selected>Неизвестный вышел</option>
-        {% else %}
-          <option value="unknown_exit">Неизвестный вышел</option>
-        {% endif %}
-        {% if type_history == "open_room" %}
-          <option value="open_room" selected>Открытие комнаты</option>
-        {% else %}
-          <option value="open_room">Открытие комнаты</option>
-        {% endif %}
-        {% if type_history == "clear_enter" %}
-          <option value="clear_enter" selected>Очистка входящих</option>
-        {% else %}
-          <option value="clear_enter">Очистка входящих</option>
-        {% endif %}
-        {% if type_history == "another" %}
-          <option value="another" selected>Другое</option>
-        {% else %}
-          <option value="another">Другое</option>
-        {% endif %}
-      </select>
-      <button type="submit">Искать</button>
+<meta http-equiv="refresh" content="15">
+
+<h2 class="text-center mb-4">История проходов</h2>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <form method="get" class="row gy-2 gx-3 align-items-center">
+      <div class="col-auto">
+        <label class="form-label mb-0" for="type">Тип события</label>
+      </div>
+      <div class="col-auto">
+        <select id="type" name="type" class="form-select">
+          <option value="all" {% if type_history == "all" %}selected{% endif %}>Все</option>
+          <option value="known_enter" {% if type_history == "known_enter" %}selected{% endif %}>Известный вошёл</option>
+          <option value="known_exit" {% if type_history == "known_exit" %}selected{% endif %}>Известный вышел</option>
+          <option value="unknown_enter" {% if type_history == "unknown_enter" %}selected{% endif %}>Неизвестный вошёл</option>
+          <option value="unknown_exit" {% if type_history == "unknown_exit" %}selected{% endif %}>Неизвестный вышел</option>
+          <option value="open_room" {% if type_history == "open_room" %}selected{% endif %}>Открытие комнаты</option>
+          <option value="clear_enter" {% if type_history == "clear_enter" %}selected{% endif %}>Очистка входящих</option>
+          <option value="another" {% if type_history == "another" %}selected{% endif %}>Другое</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Показать</button>
+      </div>
     </form>
-    <table class="table table-responsive">
-    <tr>
-      <th>Фото человека</th>
-      <th>Событие</th>
-      <th>Время</th>
-    </tr>
-    {% for person in people %}
-      <tr>
-        <td>
-          <img src="{{person.photo}}" class="card-img" alt="Фото" height="100px">
-        </td>
-        <td>{{person.title}}</td>
-        <td>{{person.date}}</td>
-      </tr>
-    {% endfor %}
-   </table>
-   <hr>
-   {% if previous_page != 0 or next_page != 0%}
-      {% if previous_page != 0 %}
-        <button type="button" class="btn btn-primary" onclick="window.location.href='?page={{previous_page}}&type={{type_history}}'">&laquo; Предыдущая страница</button>
-      {% else %}
-        <button type="button" disabled class="btn btn-primary">&laquo; Предыдущая страница</button>
-      {% endif %}
-      {% if next_page != 0 %}
-        <button type="button" class="btn btn-success" onclick="window.location.href='?page={{next_page}}&type={{type_history}}'">Следующая страница &raquo;</button>
-      {% else %}
-        <button type="button" disabled class="btn btn-success">Следующая страница &raquo;</button>
-      {% endif %}
-   {% endif %}
   </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0 history-table">
+      <thead>
+        <tr>
+          <th>Фото</th>
+          <th>Событие</th>
+          <th>Время</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for person in people %}
+        <tr class="history-row"
+            data-photo="{{ person.photo }}"
+            data-title="{{ person.title }}"
+            data-date="{{ person.date }}">
+          <td>
+            <img src="{{ person.photo }}" class="history-photo" alt="Фото">
+          </td>
+          <td>{{ person.title }}</td>
+          <td class="text-muted">{{ person.date }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3" class="text-center text-muted">Нет записей</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if previous_page != 0 or next_page != 0 %}
+<div class="d-flex justify-content-between mt-4">
+  <button class="btn btn-outline-primary"
+    {% if previous_page != 0 %}
+      onclick="window.location.href='?page={{ previous_page }}&type={{ type_history }}'"
+    {% else %} disabled {% endif %}>
+    &laquo; Назад
+  </button>
+
+  <button class="btn btn-outline-primary"
+    {% if next_page != 0 %}
+      onclick="window.location.href='?page={{ next_page }}&type={{ type_history }}'"
+    {% else %} disabled {% endif %}>
+    Вперёд &raquo;
+  </button>
+</div>
+{% endif %}
+
+<!-- MODAL -->
+<div class="modal fade" id="historyModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalPhoto" class="modal-photo mb-3">
+        <div class="text-muted" id="modalDate"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll(".history-row").forEach(row => {
+  row.addEventListener("click", () => {
+    document.getElementById("modalPhoto").src = row.dataset.photo;
+    document.getElementById("modalTitle").innerText = row.dataset.title;
+    document.getElementById("modalDate").innerText = row.dataset.date;
+
+    new bootstrap.Modal(document.getElementById("historyModal")).show();
+  });
+});
+</script>
+
 {% endblock %}
